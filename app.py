@@ -59,7 +59,7 @@ def load_sets():
     if not SETS_DIR.exists():
         return sets
 
-    for set_dir in sorted(SETS_DIR.iterdir()):
+    for set_dir in SETS_DIR.iterdir():
         if not set_dir.is_dir():
             continue
 
@@ -90,7 +90,11 @@ def load_sets():
             "description": meta.get("description", ""),
             "image_count": len(images),
             "preview_image": preview_image,
+            "created": set_dir.stat().st_ctime  # <-- creation timestamp
         })
+
+    # Sort by creation timestamp descending (most recent first)
+    sets.sort(key=lambda s: s["created"], reverse=True)
 
     return sets
 
