@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Gallery</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1 id="page-title">My Image Gallery</h1>
+
+    <div id="tag-filters" class="tag-filters"></div> <!-- Global tags -->
+    <div id="set-tags" class="set-tags"></div>       <!-- Set-specific tags -->
+    <div id="sets-container" class="sets-grid"></div> <!-- Home page sets -->
+    <div id="images-container" class="images-grid"></div> <!-- Images in set -->
+
+    <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+    <div id="lightbox" class="lightbox" style="display: none;">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-image" src="" alt="">
+        <div class="lightbox-nav lightbox-prev">&#10094;</div>
+        <div class="lightbox-nav lightbox-next">&#10095;</div>
+    </div>
+
+</body>
+
+</html>
