@@ -71,11 +71,16 @@ function renderSetImages(set) {
     // Render set tags
     renderSetTags(set.tags);
 
-    // Back button
+    // Back button (in header, not grid)
+    const controls = document.getElementById("set-controls");
+    controls.innerHTML = "";
+
     const backBtn = document.createElement("button");
-    backBtn.textContent = "← Back to sets";
+    backBtn.className = "back-button";
+    backBtn.textContent = "Return to Archive";
     backBtn.onclick = showSets;
-    imagesContainer.appendChild(backBtn);
+
+controls.appendChild(backBtn);
 
     // Render images
     set.images.forEach((url, index) => {
@@ -98,8 +103,6 @@ function renderSetImages(set) {
     // Update active tag highlighting only for visible tags
     updateActiveTag();
 }
-
-
 
 function renderSetTags(tags) {
     const container = document.getElementById("set-tags");
@@ -130,7 +133,13 @@ function showSets() {
     setTags.style.display = "none";     // hide set tags
     setTags.innerHTML = "";             // clear set tags
 
-    document.getElementById("page-title").textContent = "My Image Gallery";
+    document.getElementById("sets-container").style.display = "grid";
+    document.getElementById("images-container").style.display = "none";
+    document.getElementById("page-title").textContent = "Image Archive";
+
+    document.getElementById("tag-filters").style.display = "block";
+    document.getElementById("set-tags").innerHTML = "";
+    document.getElementById("set-controls").innerHTML = "";
 
     updateActiveTag();
 }
