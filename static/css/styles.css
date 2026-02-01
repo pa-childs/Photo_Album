@@ -78,6 +78,16 @@ body {
     right: 20px;
 }
 
+#page-title {
+    position: sticky;
+    top: 0; /* sticks to top of page */
+    z-index: 100; /* higher than set-header */
+    background: #1fa1e0;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
 .set-card {
     border: 2px solid #000000;
     border-radius: 8px;
@@ -128,7 +138,22 @@ body {
 }
 
 #set-header {
+    position: sticky;
+    top: 50px;
+    z-index: 90;
+    background: #1fa1e0;
+    padding: 10px 0 12px;
     margin-bottom: 16px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column; /* keep set-tags on top of controls */
+}
+
+.sets-grid.sticky-container {
+    position: sticky;
+    top: 100px; /* sum of page-title + tag-filters heights */
+    z-index: 80;
+    background: #1fa1e0; /* optional, keeps it visually separate */
 }
 
 .sets-grid {
@@ -169,8 +194,14 @@ body {
 }
 
 .tag-filters {
-    display: flex !important;   /* force flex layout */
-    flex-wrap: wrap;
+    position: sticky;
+    top: 50px; /* adjust as needed */
+    z-index: 90;
+    background: #1fa1e0;
+
+    display: flex !important;   /* keep flex layout */
+    flex-wrap: wrap;            /* allow wrapping if needed */
     gap: 10px;
-    margin-bottom: 20px;
+    width: 100%;                /* full width so tags stay in one row */
+    padding: 8px 0;
 }
