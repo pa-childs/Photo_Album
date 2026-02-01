@@ -1,0 +1,5 @@
+# Ignore everything inside images/sets/ but keep the directory itself
+images/sets/*
+!sets/.gitkeep
+
+.idea/
