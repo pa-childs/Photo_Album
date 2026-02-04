@@ -87,9 +87,6 @@ body {
 }
 
 #page-title {
-    position: sticky;
-    top: 0; /* sticks to top of page */
-    z-index: 100; /* higher than set-header */
     background: #1fa1e0;
     padding: 14px 20px;
     margin-top: 0;
@@ -147,18 +144,8 @@ body {
 }
 
 #set-header {
-    position: sticky;
-    top: 58px; /* header height including padding */
     background: #1fa1e0;
-    z-index: 90;
     padding: 10px 0;
-}
-
-.sets-grid.sticky-container {
-    position: sticky;
-    top: 100px; /* sum of page-title + tag-filters heights */
-    z-index: 80;
-    background: #1fa1e0; /* optional, keeps it visually separate */
 }
 
 .sets-grid {
@@ -199,9 +186,6 @@ body {
 }
 
 .tag-filters {
-    position: sticky;
-    top: 52px; /* adjust as needed */
-    z-index: 90;
     background: #1fa1e0;
 
     display: flex !important;   /* keep flex layout */
