@@ -36,7 +36,7 @@ body {
     height: 250px;
     object-fit: cover;
     border-radius: 6px;
-    border: 2px solid #000000;
+    border: 2px solid #fab45d;
 }
 
 .lightbox {
@@ -95,7 +95,7 @@ body {
 }
 
 .set-card {
-    border: 2px solid #000000;
+    border: 2px solid #fab45d;
     border-radius: 8px;
     overflow: hidden;
     text-align: center;
