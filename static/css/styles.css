@@ -107,6 +107,11 @@ body {
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #ffffff;
+    position: relative; /* important for overlay positioning */
+    min-height: 390px; /* ensures enough space for image + text */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .set-card:hover {
@@ -151,6 +156,25 @@ body {
 #set-header {
     background: #1fa1e0;
     padding: 10px 0;
+}
+
+.set-image-count {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background-color: #fab45d;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 0.85em;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+
+    /* Always visible */
+    opacity: 1; /* not 0 */
+    transition: none; /* remove any hover transition */
 }
 
 .sets-grid {

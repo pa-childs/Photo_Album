@@ -22,6 +22,15 @@ function createSetCard(set) {
     img.alt = set.title;
     card.appendChild(img);
 
+    // Image count overlay
+    const count = document.createElement("span");
+    count.className = "set-image-count";
+
+    // Use the image_count from the API summary
+    const imageCount = set.image_count || 0;
+    count.textContent = `${imageCount} images`;
+    card.appendChild(count);
+
     // Title
     const title = document.createElement("h2");
     title.textContent = set.title;
