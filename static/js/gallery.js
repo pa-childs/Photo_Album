@@ -3,6 +3,14 @@ let currentSet = null;
 let allSets = [];
 let activeTag = null;
 
+// For lightbox
+let zoomLevel = 1;
+let panX = 0;
+let panY = 0;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+
 // Helper: create a single set card
 function createSetCard(set) {
     const card = document.createElement("div");
@@ -196,8 +204,22 @@ function showPrevImage() {
 }
 
 function updateLightboxImage() {
-    document.getElementById("lightbox-image").src =
-        currentSet.images[currentImageIndex];
+    const img = document.getElementById("lightbox-image");
+    img.src = currentSet.images[currentImageIndex];
+
+    // Reset zoom & pan
+    zoomLevel = 1;
+    panX = 0;
+    panY = 0;
+    img.style.transform = `translate(0px, 0px) scale(1)`;
+}
+
+function zoomImage(delta) {
+    const img = document.getElementById("lightbox-image");
+    zoomLevel += delta;
+    if (zoomLevel < 1) zoomLevel = 1; // prevent negative zoom
+    if (zoomLevel > 5) zoomLevel = 5; // optional max zoom
+    img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
 }
 
 function renderTagFilters(sets) {
@@ -272,38 +294,56 @@ function updateActiveTag() {
     }
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Close button
-    document.querySelector(".lightbox-close")
-        .addEventListener("click", closeLightbox);
+    const img = document.getElementById("lightbox-image");
+
+    // Start dragging
+    img.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        dragStartX = e.clientX - panX;
+        dragStartY = e.clientY - panY;
+        img.style.cursor = "grabbing";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        panX = e.clientX - dragStartX;
+        panY = e.clientY - dragStartY;
+        img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    });
+
+    document.addEventListener("mouseup", () => {
+        isDragging = false;
+        img.style.cursor = "grab";
+    });
+
+    // Lightbox close button
+    document.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
 
     // Navigation buttons
-    document.querySelector(".lightbox-next")
-        .addEventListener("click", showNextImage);
-
-    document.querySelector(".lightbox-prev")
-        .addEventListener("click", showPrevImage);
+    document.querySelector(".lightbox-next").addEventListener("click", showNextImage);
+    document.querySelector(".lightbox-prev").addEventListener("click", showPrevImage);
 
     // Close on background click
-    document.getElementById("lightbox")
-        .addEventListener("click", (e) => {
-            if (e.target.id === "lightbox") {
-                closeLightbox();
-            }
-        });
+    document.getElementById("lightbox").addEventListener("click", (e) => {
+        if (e.target.id === "lightbox") closeLightbox();
+    });
 
     // Keyboard controls
     document.addEventListener("keydown", (e) => {
         const lightbox = document.getElementById("lightbox");
-        const visible = lightbox.style.display === "flex";
-
-        if (!visible) return;
+        if (lightbox.style.display !== "flex") return;
 
         if (e.key === "Escape") closeLightbox();
         if (e.key === "ArrowRight") showNextImage();
         if (e.key === "ArrowLeft") showPrevImage();
     });
 
+    // Wheel for zoom
+    document.getElementById("lightbox").addEventListener("wheel", (e) => {
+        e.preventDefault();
+        zoomImage(e.deltaY < 0 ? 0.1 : -0.1);
+    });
 });
+

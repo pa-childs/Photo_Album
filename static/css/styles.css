@@ -55,6 +55,11 @@ body {
     object-fit: contain;
 }
 
+#lightbox-image {
+    cursor: grab;
+    transition: transform 0.2s ease; /* smooth zoom/pan */
+}
+
 .lightbox-close {
     position: absolute;
     top: 20px;
