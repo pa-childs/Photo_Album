@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Image Archive</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1 id="page-title">Image Archive</h1>
+    <div class="page">
+        <h1 id="page-title">Image Archive</h1>
 
-    <div id="tag-filters" class="tag-filters"></div> <!-- Global tags -->
-    <div id="sets-container" class="sets-grid"></div> <!-- Home page sets -->
+        <div id="tag-filters" class="tag-filters"></div> <!-- Global tags -->
+        <div id="sets-container" class="sets-grid"></div> <!-- Home page sets -->
 
-    <div id="set-header">
-        <div id="set-tags" class="set-tags"></div> <!-- Set-specific tags -->
-        <div id="set-controls"></div>
+        <div id="set-header">
+            <div id="set-tags" class="set-tags"></div> <!-- Set-specific tags -->
+            <div id="set-controls"></div>
+        </div>
+        <div id="images-container" class="images-grid"></div> <!-- Images in set -->
+
+        <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+        <div id="lightbox" class="lightbox" style="display: none;">
+            <span class="lightbox-close">&times;</span>
+            <img id="lightbox-image" src="" alt="">
+            <div class="lightbox-nav lightbox-prev">&#10094;</div>
+            <div class="lightbox-nav lightbox-next">&#10095;</div>
+        </div>
     </div>
-    <div id="images-container" class="images-grid"></div> <!-- Images in set -->
-
-    <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
-
-    <div id="lightbox" class="lightbox" style="display: none;">
-        <span class="lightbox-close">&times;</span>
-        <img id="lightbox-image" src="" alt="">
-        <div class="lightbox-nav lightbox-prev">&#10094;</div>
-        <div class="lightbox-nav lightbox-next">&#10095;</div>
-    </div>
-
 </body>
 
 </html>

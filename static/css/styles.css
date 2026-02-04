@@ -1,7 +1,11 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: sans-serif;
-    padding: 20px;
     background-color: #1fa1e0;
+    margin: 0;
 }
 
 .back-button {
@@ -78,13 +82,18 @@ body {
     right: 20px;
 }
 
+.page {
+    padding: 0 20px 20px;  /* no top padding */
+}
+
 #page-title {
     position: sticky;
     top: 0; /* sticks to top of page */
     z-index: 100; /* higher than set-header */
     background: #1fa1e0;
-    padding: 10px 0;
-    margin-bottom: 10px;
+    padding: 14px 20px;
+    margin-top: 0;
+    margin: 0;
     border-bottom: 1px solid #ddd;
 }
 
@@ -139,14 +148,10 @@ body {
 
 #set-header {
     position: sticky;
-    top: 50px;
-    z-index: 90;
+    top: 58px; /* header height including padding */
     background: #1fa1e0;
-    padding: 10px 0 12px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column; /* keep set-tags on top of controls */
+    z-index: 90;
+    padding: 10px 0;
 }
 
 .sets-grid.sticky-container {
@@ -195,7 +200,7 @@ body {
 
 .tag-filters {
     position: sticky;
-    top: 50px; /* adjust as needed */
+    top: 52px; /* adjust as needed */
     z-index: 90;
     background: #1fa1e0;
 
