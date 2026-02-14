@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ set.title }}</h1>
+
+<p>
+    <a href="{{ url_for('archive') }}">← Return to Archive</a>
+</p>
+
+{% if set.description %}
+    <p>{{ set.description }}</p>
+{% endif %}
+
+<div class="images-grid">
+    {% for image in set.images %}
+        <img
+            src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ image) }}"
+            class="gallery-image"
+            data-index="{{ loop.index0 }}"
+            onclick="openLightbox({{ loop.index0 }})"
+        >
+    {% endfor %}
+</div>
+
+<div id="lightbox" class="lightbox" style="display: none;">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-image" src="" alt="">
+    <div class="lightbox-nav lightbox-prev">&#10094;</div>
+    <div class="lightbox-nav lightbox-next">&#10095;</div>
+</div>
+
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+{% endblock %}
+

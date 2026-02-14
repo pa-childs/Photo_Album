@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Album</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+
+<nav>
+    <a href="/">Archive</a>
+    <a href="/tags">Tags</a>
+    <a href="/people">People</a>
+</nav>
+
+<hr>
+
+{% block content %}{% endblock %}
+
+
+
+</body>
+</html>

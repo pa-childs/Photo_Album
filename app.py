@@ -1,11 +1,11 @@
-from flask import Flask, render_template, jsonify, send_from_directory, abort
+from flask import Flask, jsonify, render_template, request, send_from_directory, abort
 from pathlib import Path
-import json
+import json, os
 
 app = Flask(__name__)
 
-BASE_DIR = Path(__file__).parent
-SETS_DIR = BASE_DIR / "images" / "sets"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SETS_DIR = os.path.join(app.static_folder, "sets")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -21,8 +21,75 @@ def api_sets():
     return jsonify(load_sets())
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+def archive():
+    tag = request.args.get("tag")
+    person = request.args.get("person")
+
+    sets = load_all_sets()
+
+    if tag:
+        sets = [
+            s for s in sets
+            if any(p.lower() == tag.lower() for p in s["tags"])
+        ]
+    elif person:
+        sets = [
+            s for s in sets
+            if any(p.lower() == person.lower() for p in s["people"])
+        ]
+
+
+    return render_template(
+        "archive.html",
+        sets=sets,
+        active_tag=tag,
+        active_person=person
+    )
+
+@app.route("/set/<slug>")
+def view_set(slug):
+    sets = load_all_sets()
+    set_obj = next((s for s in sets if s["slug"] == slug), None)
+
+    if not set_obj:
+        return "Set not found", 404
+
+    return render_template("set.html", set=set_obj)
+
+def load_all_sets():
+    sets = []
+
+    for folder in os.listdir(SETS_DIR):
+        set_path = os.path.join(SETS_DIR, folder)
+
+        if not os.path.isdir(set_path):
+            continue
+
+        meta_path = os.path.join(set_path, "meta.json")
+        if not os.path.exists(meta_path):
+            continue
+
+        with open(meta_path) as f:
+            meta = json.load(f)
+
+        images = [
+            file for file in os.listdir(set_path)
+            if file.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+        ]
+
+        images.sort()
+
+        sets.append({
+            "slug": folder,
+            "title": meta.get("title", folder),
+            "description": meta.get("description", ""),
+            "tags": meta.get("tags", []),
+            "people": meta.get("people", []),
+            "images": images,
+            "cover": images[0] if images else None
+        })
+
+    return sets
 
 def load_set(set_id):
     set_dir = SETS_DIR / set_id

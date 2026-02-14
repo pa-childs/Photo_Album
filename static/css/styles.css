@@ -3,9 +3,9 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #1fa1e0;
-    margin: 0;
+    margin: 40px;
 }
 
 .back-button {
@@ -24,10 +24,21 @@ body {
 .images-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.images-grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
 }
 
 .image-thumb {
+    width: 100%;
+    height: auto;
+    display: block;
     cursor: pointer;
 }
 
@@ -87,6 +98,12 @@ body {
     right: 20px;
 }
 
+nav a {
+    margin-right: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
 .page {
     padding: 0 20px 20px;  /* no top padding */
 }
@@ -95,6 +112,7 @@ body {
     background: #1fa1e0;
     padding: 14px 20px;
     margin-top: 0;
+    margin-bottom: 30px;
     margin: 0;
     border-bottom: 1px solid #fab45d;
 }
@@ -112,10 +130,13 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    padding: 10px;
+    transition: 0.2s ease;
 }
 
 .set-card:hover {
-    transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -158,8 +179,13 @@ body {
     padding: 10px 0;
 }
 
+.set-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 .set-image-count {
-    position: absolute;
     bottom: 6px;
     right: 6px;
     background-color: #fab45d;
@@ -177,10 +203,14 @@ body {
     transition: none; /* remove any hover transition */
 }
 
+.set-info h2 {
+    margin: 10px 0 5px;
+}
+
 .sets-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    gap: 20px;
 }
 
 .set-tags {

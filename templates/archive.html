@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="page-title">
+    {% if active_tag %}
+        Tag: {{ active_tag }}
+    {% elif active_person %}
+        Person: {{ active_person }}
+    {% else %}
+        Image Archive
+    {% endif %}
+</h1>
+
+<div class="sets-grid">
+    {% for set in sets %}
+        <a href="/set/{{ set.slug }}" class="set-card">
+            {% if set.cover %}
+                <div class="set-image">
+                    <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
+                </div>
+            {% endif %}
+            <div class="set-info">
+                <h2>{{ set.title }}</h2>
+                {% if set.description %}
+                    <p>{{ set.description }}</p>
+                {% endif %}
+            </div>
+        </a>
+    {% endfor %}
+</div>
+
+{% endblock %}
