@@ -3,3 +3,5 @@ images/sets/*
 !sets/.gitkeep
 
 .idea/
+
+photo_album.bat
