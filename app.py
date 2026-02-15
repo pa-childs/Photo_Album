@@ -11,7 +11,21 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 @app.route("/")
 def archive():
     sets = load_all_sets()
-    return render_template("archive.html", sets=sets)
+    sort = request.args.get("sort")
+
+    if sort == "title":
+        sets.sort(key=lambda s: s["title"].lower())
+
+    elif sort == "images":
+        sets.sort(key=lambda s: s["image_count"], reverse=True)
+
+    # default already sorted by newest
+
+    return render_template(
+        "archive.html",
+        sets=sets,
+        current_sort=sort
+    )
 
 def load_all_sets():
     sets = []
@@ -45,6 +59,8 @@ def load_all_sets():
         else:
             cover = None
 
+        folder_mtime = os.path.getmtime(set_path)
+
         sets.append({
             "slug": folder,
             "title": meta.get("title", folder),
@@ -52,8 +68,12 @@ def load_all_sets():
             "tags": meta.get("tags", []),
             "people": meta.get("people", []),
             "images": images,
-            "cover": cover
+            "cover": cover,
+            "image_count": len(images),
+            "mtime": folder_mtime
         })
+
+        sets.sort(key=lambda s: s["mtime"], reverse=True)
 
     return sets
 

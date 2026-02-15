@@ -12,6 +12,15 @@
     {% endif %}
 </h1>
 
+<div class="archive-sort">
+    Sort:
+    <a href="{{ url_for('archive') }}">Newest</a> |
+    <!--
+    <a href="{{ url_for('archive', sort='title') }}">A–Z</a> |
+    -->
+    <a href="{{ url_for('archive', sort='images') }}">Image Count</a>
+</div>
+
 {% if filter_type %}
     <h2>
         Showing sets for {{ filter_type }}: "{{ filter_value }}"
@@ -27,10 +36,12 @@
                 </div>
             {% endif %}
             <div class="set-info">
-                <h2>{{ set.title }}</h2>
-                {% if set.description %}
-                    <p>{{ set.description }}</p>
-                {% endif %}
+                <div class="set-info-header">
+                    <h2>{{ set.title }}</h2>
+                    <div class="image-count-badge">
+                        {{ set.image_count }} Images
+                    </div>
+                </div>
             </div>
         </a>
     {% endfor %}

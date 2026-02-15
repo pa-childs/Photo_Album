@@ -8,17 +8,18 @@ body {
     margin: 40px;
 }
 
-.back-button {
-    padding: 6px 12px;
-    font-size: 14px;
-    border-radius: 999px;
-    border: 1px solid #ccc;
-    background: #ddd;
-    cursor: pointer;
+hr {
+    color: #fab45d;
 }
 
-.back-button:hover {
-    background: #f0f0f0;
+.image-count-badge {
+    background: #fab45d;
+    color: #ffffff;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 12px;
+    line-height: 1;
+    flex-shrink: 0;
 }
 
 .images-grid {
@@ -98,6 +99,30 @@ body {
     right: 20px;
 }
 
+@media (max-width: 1400px) {
+    .sets-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .sets-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .sets-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .sets-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 nav a {
     margin-right: 20px;
     text-decoration: none;
@@ -125,19 +150,19 @@ nav a {
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #ffffff;
-    position: relative; /* important for overlay positioning */
-    min-height: 390px; /* ensures enough space for image + text */
+    position: relative;
+    min-height: 350px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     text-decoration: none;
-    border: 1px solid #ddd;
+    border: 1px solid #fab45d;
+    border-width: 3px;
     padding: 10px;
-    transition: 0.2s ease;
 }
 
 .set-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px #00000026;
 }
 
 .set-card img {
@@ -179,9 +204,22 @@ nav a {
     padding: 10px 0;
 }
 
+.set-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    /*
+        aspect-ratio: 1 / 1; → square
+        aspect-ratio: 4 / 5; → portrait-friendly
+        aspect-ratio: 3 / 2; → more landscape feel
+    */
+    overflow: hidden;
+}
+
 .set-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
 }
 
@@ -203,14 +241,32 @@ nav a {
     transition: none; /* remove any hover transition */
 }
 
+.set-info {
+    padding: 12px;
+}
+
+.set-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
 .set-info h2 {
-    margin: 10px 0 5px;
+    margin: 0;
+    font-size: 1rem;
 }
 
 .sets-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(6, 1fr);
     gap: 20px;
+}
+
+.set-meta {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 4px;
 }
 
 .set-tags,
@@ -227,5 +283,31 @@ nav a {
 
 .set-tags a:hover,
 .set-people a:hover {
+    text-decoration: underline;
+}
+
+.tag-group {
+    margin-bottom: 32px;
+}
+
+.tag-letter {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+}
+
+.tag-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tag-link {
+    text-decoration: none;
+    color: #333;
+}
+
+.tag-link:hover {
     text-decoration: underline;
 }
