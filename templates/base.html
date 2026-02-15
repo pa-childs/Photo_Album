@@ -7,17 +7,15 @@
 </head>
 <body>
 
-<nav>
-    <a href="/">Archive</a>
-    <a href="/tags">Tags</a>
-    <a href="/people">People</a>
-</nav>
+    <nav>
+        <a href="/">Archive</a>
+        <a href="{{ url_for('tags_index') }}">Tags</a>
+        <a href="{{ url_for('people_index') }}">People</a>
+    </nav>
 
-<hr>
+    <hr>
 
-{% block content %}{% endblock %}
-
-
+    {% block content %}{% endblock %}
 
 </body>
 </html>

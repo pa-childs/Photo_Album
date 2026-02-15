@@ -213,43 +213,19 @@ nav a {
     gap: 20px;
 }
 
-.set-tags {
-    margin: 10px 0 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px; /* space between tags */
+.set-tags,
+.set-people {
+    margin-top: 10px;
+    font-size: 0.9rem;
 }
 
-.set-tags .tag {
-    display: inline-block;
-    padding: 4px 10px;
-    background: #ddd;
-    border-radius: 4px;
-    font-size: 0.85em;
-    cursor: default;
+.set-tags a,
+.set-people a {
+    text-decoration: none;
+    margin-right: 5px;
 }
 
-.tag {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 999px;
-    background: white;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.tag.active {
-    background: #333;
-    color: white;
-    border-color: #333;
-}
-
-.tag-filters {
-    background: #1fa1e0;
-
-    display: flex !important;   /* keep flex layout */
-    flex-wrap: wrap;            /* allow wrapping if needed */
-    gap: 10px;
-    width: 100%;                /* full width so tags stay in one row */
-    padding: 8px 0;
+.set-tags a:hover,
+.set-people a:hover {
+    text-decoration: underline;
 }

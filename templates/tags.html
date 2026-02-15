@@ -1,11 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
 <h1>Tags</h1>
 
 <ul>
     {% for tag in tags %}
         <li>
-            <a href="/?tag={{ tag.label }}">
+            <a href="{{ url_for('view_tag', tag_name=tag.label) }}">
                 {{ tag.label }} ({{ tag.count }})
             </a>
         </li>
     {% endfor %}
 </ul>
+
+{% endblock %}
