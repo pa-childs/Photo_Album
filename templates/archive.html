@@ -2,16 +2,6 @@
 
 {% block content %}
 
-<h1 class="page-title">
-    {% if active_tag %}
-        Tag: {{ active_tag }}
-    {% elif active_person %}
-        Person: {{ active_person }}
-    {% else %}
-        Image Archive
-    {% endif %}
-</h1>
-
 <div class="archive-sort">
     Sort:
     <a href="{{ url_for('archive') }}">Newest</a> |
