@@ -1,7 +1,6 @@
 a {
     text-decoration: none;
     color: #344e41;
-
 }
 
 a:hover {
@@ -193,6 +192,33 @@ hr {
 
 .set-tags a:hover,
 .set-people a:hover {
+    text-decoration: none;
+    color: #6C9D85;
+}
+
+.tag-group {
+    margin-bottom: 32px;
+}
+
+.tag-letter {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+}
+
+.tag-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tag-link {
+    text-decoration: none;
+    color: #344e41;
+}
+
+.tag-link:hover {
     text-decoration: none;
     color: #6C9D85;
 }

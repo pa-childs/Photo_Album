@@ -4,14 +4,20 @@
 
 <h1>People</h1>
 
-<ul>
-    {% for person in people %}
-        <li>
-            <a href="{{ url_for('view_person', person_name=person.label) }}">
-                {{ person.label }} ({{ person.count }})
-            </a>
-        </li>
+<div class="tags-list">
+    {% for letter in grouped_people|sort %}
+        <div class="tag-group">
+            <h2 class="tag-letter">{{ letter }}</h2>
+            <div class="tag-items">
+                {% for person in grouped_people[letter] %}
+                    <a href="{{ url_for('view_person', person_name=person.label) }}"
+                       class="tag-link">
+                        {{ person.label }} ({{ person.count }})
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
     {% endfor %}
-</ul>
+</div>
 
 {% endblock %}

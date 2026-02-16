@@ -4,14 +4,23 @@
 
 <h1>Tags</h1>
 
-<ul>
-    {% for tag in tags %}
-        <li>
-            <a href="{{ url_for('view_tag', tag_name=tag.label) }}">
-                {{ tag.label }} ({{ tag.count }})
-            </a>
-        </li>
+{% set current_letter = None %}
+
+<div class="tags-list">
+    {% for letter in grouped_tags|sort %}
+        <div class="tag-group">
+            <h2 class="tag-letter">{{ letter }}</h2>
+            <div class="tag-items">
+                {% for tag in grouped_tags[letter] %}
+                    <a href="{{ url_for('view_tag', tag_name=tag.label) }}"
+                       class="tag-link">
+                        {{ tag.label }} ({{ tag.count }})
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
     {% endfor %}
-</ul>
+</div>
+
 
 {% endblock %}

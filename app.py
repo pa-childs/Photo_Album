@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request
+from collections import defaultdict
+
 import json, os
 
 app = Flask(__name__)
@@ -76,6 +78,7 @@ def load_all_sets():
         sets.sort(key=lambda s: s["mtime"], reverse=True)
 
     return sets
+from collections import defaultdict
 
 @app.route("/people")
 def people_index():
@@ -87,14 +90,28 @@ def people_index():
         for person in s["people"]:
             people_counts[person] = people_counts.get(person, 0) + 1
 
-    people = [
-        {"label": person, "count": count}
-        for person, count in sorted(people_counts.items())
-    ]
+    sorted_people = sorted(people_counts.items())
 
-    return render_template("people.html", people=people)
+    grouped_people = defaultdict(list)
+
+    for label, count in sorted_people:
+        if not label or not label.strip():
+            continue  # skip blanks safely
+
+        clean_label = label.strip()
+        first_letter = clean_label[0].upper()
+
+        grouped_people[first_letter].append({
+            "label": clean_label,
+            "count": count
+        })
+
+    return render_template(
+        "people.html",
+        grouped_people=dict(grouped_people)
+    )
+
 @app.route("/tags")
-
 def tags_index():
     sets = load_all_sets()
 
@@ -104,12 +121,28 @@ def tags_index():
         for tag in s["tags"]:
             tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
-    tags = [
-        {"label": tag, "count": count}
-        for tag, count in sorted(tag_counts.items())
-    ]
+    # Sort alphabetically
+    sorted_tags = sorted(tag_counts.items())
 
-    return render_template("tags.html", tags=tags)
+    # Group by first letter
+    grouped_tags = defaultdict(list)
+
+    for label, count in sorted_tags:
+        if not label or not label.strip():
+            continue  # skip empty tags safely
+
+        clean_label = label.strip()
+        first_letter = clean_label[0].upper()
+
+        grouped_tags[first_letter].append({
+            "label": clean_label,
+            "count": count
+        })
+
+    return render_template(
+        "tags.html",
+        grouped_tags=dict(grouped_tags)
+    )
 
 @app.route("/set/<slug>")
 def view_set(slug):
