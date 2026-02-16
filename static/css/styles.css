@@ -1,35 +1,37 @@
 a {
     text-decoration: none;
-    color: #2364AA
+    color: #344e41;
+
 }
 
 a:hover {
     text-decoration: none;
-    color: #77C0E4
+    color: #6C9D85;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #DAFFD6;
+    background-color: #dad7cd;
     margin: 40px;
 }
 
 .gallery-image {
     width: 100%;
-    height: 200px;      /* Pick the height you want */
+    height: 250px;      /* Pick the height you want */
     object-fit: cover;  /* Crops instead of stretching */
+    object-position: center top;
     display: block;
     cursor: pointer;
     border-radius: 6px;
-    border: 3px solid #201335
+    border: 3px solid #344e41;
 }
 
 hr {
-    color: #201335;
+    color: #344e41;
 }
 
 .image-count-badge {
-    background: #201335;
+    background: #344e41;
     color: #ffffff;
     padding: 4px 8px;
     font-size: 0.75rem;
@@ -56,8 +58,8 @@ hr {
 }
 
 .lightbox img {
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 95%;
+    max-height: 95%;
     object-fit: contain;
 }
 
@@ -71,7 +73,7 @@ hr {
     top: 20px;
     right: 30px;
     font-size: 40px;
-    color: white;
+    color: #ffffff;
     cursor: pointer;
 }
 
@@ -79,7 +81,7 @@ hr {
     position: absolute;
     top: 50%;
     font-size: 60px;
-    color: white;
+    color: #ffffff;
     cursor: pointer;
     user-select: none;
     padding: 10px;
@@ -97,11 +99,11 @@ hr {
     padding: 14px 0px;
     margin-top: 0;
     margin: 0;
-    color: #2364AA
+    color: #344e41
 }
 
 .set-card {
-    border: 2px solid #201335;
+    border: 2px solid #344e41;
     border-radius: 8px;
     border-width: 3px;
     overflow: hidden;
@@ -119,7 +121,7 @@ hr {
 }
 
 .set-card:hover {
-    box-shadow: 0 5px 12px #2364AA;
+    box-shadow: 0 5px 12px #6B7A52;
 }
 
 .set-card img {
@@ -186,12 +188,13 @@ hr {
 .set-people a {
     text-decoration: none;
     margin-right: 5px;
-    color: #2364AA
+    color: #344e41;
 }
 
 .set-tags a:hover,
 .set-people a:hover {
     text-decoration: none;
+    color: #6C9D85;
 }
 
 @media (max-width: 1400px) {

@@ -10,7 +10,7 @@
         {% for tag in set.tags %}
             <a href="{{ url_for('view_tag', tag_name=tag) }}">
                 {{ tag }}
-            </a>{% if not loop.last %}, {% endif %}
+            </a>{% if not loop.last %} |  {% endif %}
         {% endfor %}
     </div>
 {% endif %}
@@ -21,7 +21,7 @@
         {% for person in set.people %}
             <a href="{{ url_for('view_person', person_name=person) }}">
                 {{ person }}
-            </a>{% if not loop.last %}, {% endif %}
+            </a>{% if not loop.last %} |  {% endif %}
         {% endfor %}
     </div>
 {% endif %}
