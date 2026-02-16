@@ -25,6 +25,10 @@ body {
     border: 3px solid #344e41;
 }
 
+.gallery-image:hover {
+    box-shadow: 0 5px 12px #6B7A52;
+}
+
 hr {
     color: #344e41;
 }
