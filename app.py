@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from collections import defaultdict
 
-import json, os
+import json, os, random
 
 app = Flask(__name__)
 
@@ -20,6 +20,9 @@ def archive():
 
     elif sort == "images":
         sets.sort(key=lambda s: s["image_count"], reverse=True)
+
+    elif sort == "random":
+        random.shuffle(sets)
 
     # default already sorted by newest
 
@@ -78,7 +81,6 @@ def load_all_sets():
         sets.sort(key=lambda s: s["mtime"], reverse=True)
 
     return sets
-from collections import defaultdict
 
 @app.route("/people")
 def people_index():

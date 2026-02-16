@@ -2,20 +2,24 @@
 
 {% block content %}
 
-<div class="archive-sort">
-    Sort:
-    <a href="{{ url_for('archive') }}">Most Recent</a> |
-    <!--
-    <a href="{{ url_for('archive', sort='title') }}">A–Z</a> |
-    -->
-    <a href="{{ url_for('archive', sort='images') }}">Image Count</a>
-</div>
+{% if not filter_type %}
 
-<hr>
+    <div class="archive-sort">
+        Sort:
+        <a href="{{ url_for('archive') }}">Most Recent</a> |
+        <!--
+        <a href="{{ url_for('archive', sort='title') }}">A–Z</a> |
+        -->
+        <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
+        <a href="{{ url_for('archive', sort='random') }}">Random</a>
+    </div>
+
+    <hr>
+{% endif %}
 
 {% if filter_type %}
     <h2>
-        Showing sets for {{ filter_type }}: {{ filter_value }}
+        Collections filtered: {{ filter_value }}
     </h2>
 {% endif %}
 
