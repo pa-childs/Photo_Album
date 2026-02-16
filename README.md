@@ -2,16 +2,22 @@
 
 Photo album web application (Python Flask app)
 
-Allows the user to place sets of images within that web application's image/sets directory. All image sets can be viewed on the initial page, and when a set is selected all of the contained images are displayed for that set.
+Allows the user to place collections of images within that web application's static/sets directory. All image 
+collections can be viewed by clicking the collection link, and the collection loads all the contained images 
+are displayed.
 
-* Each set has a meta.json file when contains:
+* Each image collection has a meta.json file which contains:
   * Title
+  * People
   * Tags
   * Description
-* Image Sets on the main page can be:
-  * Filtered by tags
-  * Show set title, tags, and image count
-* Images are shown in lightbox
-  * Cycle through pictures with arrows or keys
-  * Zoom and pan with mouse 
-  * Close image by clicking outside of image/X button
+  * Cover
+
+* Image Collection on the Image Archive page:
+  * Can be sorted by Most Recent or Most Images
+  * Show set title, and image count
+
+* Images are shown in lightbox which has the ability to:
+  * Cycle through pictures with arrows on screen or arrow keys on keyboard
+  * Zoom and pan with mouse scroll wheel 
+  * Close image by clicking outside of the image or the X button
