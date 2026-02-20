@@ -123,20 +123,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (tagButton && tagForm) {
         tagButton.addEventListener("click", function () {
-            if (tagForm.style.display === "none" || tagForm.style.display === "") {
-                tagForm.style.display = "block";
-            } else {
-                tagForm.style.display = "none";
+
+            const isHidden = tagForm.style.display === "none" || tagForm.style.display === "";
+
+            tagForm.style.display = isHidden ? "block" : "none";
+
+            // If we just opened it, focus the input
+            if (isHidden) {
+                const input = tagForm.querySelector("input[name='new_tag']");
+                if (input) {
+                    input.focus();
+                }
             }
         });
     }
 
     if (personButton && personForm) {
         personButton.addEventListener("click", function () {
-            if (personForm.style.display === "none" || personForm.style.display === "") {
-                personForm.style.display = "block";
-            } else {
-                personForm.style.display = "none";
+
+            const isHidden = personForm.style.display === "none" || personForm.style.display === "";
+
+            personForm.style.display = isHidden ? "block" : "none";
+
+            // If we just opened it, focus the input
+            if (isHidden) {
+                const input = personForm.querySelector("input[name='new_person']");
+                if (input) {
+                    input.focus();
+                }
             }
         });
     }

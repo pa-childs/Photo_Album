@@ -9,13 +9,13 @@
         <strong>Tags:</strong>
         {% for tag in set.tags | sort(case_sensitive=False) %}
             <span class="tag-item">
-                <a href="{{ url_for('view_tag', tag_name=tag) }}">
+                <a href="{{ url_for('view_tag', tag_name=tag) }}" class="tag-button">
                     {{ tag }}
                 </a>
 
                 <form method="POST"
                       action="{{ url_for('remove_tag', slug=set.slug) }}"
-                      class="inline-form">
+                      class="remove-form">
                     <input type="hidden" name="tag_to_remove" value="{{ tag }}">
                     <button type="submit" class="remove-btn">&times;</button>
                 </form>
@@ -40,13 +40,13 @@
         <strong>People:</strong>
         {% for person in set.people | sort(case_sensitive=False) %}
             <span class="person-item">
-                <a href="{{ url_for('view_person', person_name=person) }}">
+                <a href="{{ url_for('view_person', person_name=person) }}" class="people-button">
                     {{ person }}
                 </a>
 
                 <form method="POST"
                       action="{{ url_for('remove_person', slug=set.slug) }}"
-                      class="inline-form">
+                      class="remove-form">
                     <input type="hidden" name="person_to_remove" value="{{ person }}">
                     <button type="submit" class="remove-btn">&times;</button>
                 </form>

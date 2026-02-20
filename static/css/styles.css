@@ -15,6 +15,22 @@ body {
     margin: 40px;
 }
 
+button {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    background-color: #ffffff;
+    color: #344e41;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    color: #6C9D85;
+}
+
 .gallery-image {
     width: 100%;
     height: 250px;      /* Pick the height you want */
@@ -110,17 +126,50 @@ hr {
     color: #344e41
 }
 
+.person-item a {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    background-color: #ffffff;
+    color: #344e41;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
 .remove-btn {
-    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
     border: none;
-    color: #888;
+
+    font-size: 12px;
+    line-height: 1;
+
+    background: #344e41;
+    color: white;
+
     cursor: pointer;
-    font-size: 0.9em;
-    margin-left: 4px;
+
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
 .remove-btn:hover {
-    color: red;
+    color: #dad7cd;
+}
+
+.remove-form {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    margin: 0;
 }
 
 .set-card {
@@ -218,8 +267,35 @@ hr {
     color: #6C9D85;
 }
 
+.tag-button {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #e5e5e5;
+    text-decoration: none;
+    position: relative;
+}
+
 .tag-group {
     margin-bottom: 32px;
+}
+
+.tag-item,
+.person-item {
+    position: relative;
+    display: inline-block;
+}
+
+.tag-item a {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    background-color: #ffffff;
+    color: #344e41;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
 .tag-letter {
@@ -233,6 +309,11 @@ hr {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+}
+
+.tag-item:hover .remove-btn,
+.person-item:hover .remove-btn {
+    opacity: 1;
 }
 
 .tag-link {
