@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, url_for
 from collections import defaultdict
 
 import json, os, random
@@ -9,6 +9,82 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETS_DIR = os.path.join(app.static_folder, "sets")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+def normalize_name(value):
+    value = value.strip()
+
+    if not value:
+        return ""
+
+    # If the entire string is uppercase, keep it as-is
+    if value.isupper():
+        return value
+
+    # Otherwise convert to title case
+    return value.title()
+
+@app.route("/set/<slug>/add-person", methods=["POST"])
+def add_person(slug):
+    raw_person = request.form.get("new_person", "")
+    new_person = normalize_name(raw_person)
+
+    if not new_person:
+        return redirect(url_for("view_set", slug=slug))
+
+    sets = load_all_sets()
+
+    for s in sets:
+        if s["slug"] == slug:
+            existing_people_lower = [p.lower() for p in s["people"]]
+
+            if new_person.lower() not in existing_people_lower:
+                s["people"].append(new_person)
+
+                meta_path = os.path.join("static", "sets", slug, "meta.json")
+
+                with open(meta_path, "r") as f:
+                    meta = json.load(f)
+
+                meta["people"] = s["people"]
+
+                with open(meta_path, "w") as f:
+                    json.dump(meta, f, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
+
+@app.route("/set/<slug>/add-tag", methods=["POST"])
+def add_tag(slug):
+    raw_tag = request.form.get("new_tag", "")
+    new_tag = normalize_name(raw_tag)
+
+    if not new_tag:
+        return redirect(url_for("view_set", slug=slug))
+
+    sets = load_all_sets()
+
+    for s in sets:
+        if s["slug"] == slug:
+            existing_tags_lower = [t.lower() for t in s["tags"]]
+
+            if new_tag.lower() not in existing_tags_lower:
+                s["tags"].append(new_tag)
+
+                # Update meta.json
+                meta_path = os.path.join("static", "sets", slug, "meta.json")
+
+                with open(meta_path, "r") as f:
+                    meta = json.load(f)
+
+                meta["tags"] = s["tags"]
+
+                with open(meta_path, "w") as f:
+                    json.dump(meta, f, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
 
 @app.route("/")
 def archive():
@@ -112,6 +188,56 @@ def people_index():
         "people.html",
         grouped_people=dict(grouped_people)
     )
+
+@app.route("/set/<slug>/remove-person", methods=["POST"])
+def remove_person(slug):
+    person_to_remove = request.form.get("person_to_remove", "")
+
+    sets = load_all_sets()
+
+    for s in sets:
+        if s["slug"] == slug:
+
+            s["people"] = [p for p in s["people"] if p.lower() != person_to_remove.lower()]
+
+            meta_path = os.path.join("static", "sets", slug, "meta.json")
+
+            with open(meta_path, "r") as f:
+                meta = json.load(f)
+
+            meta["people"] = s["people"]
+
+            with open(meta_path, "w") as f:
+                json.dump(meta, f, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
+
+@app.route("/set/<slug>/remove-tag", methods=["POST"])
+def remove_tag(slug):
+    tag_to_remove = request.form.get("tag_to_remove", "")
+
+    sets = load_all_sets()
+
+    for s in sets:
+        if s["slug"] == slug:
+
+            s["tags"] = [t for t in s["tags"] if t.lower() != tag_to_remove.lower()]
+
+            meta_path = os.path.join("static", "sets", slug, "meta.json")
+
+            with open(meta_path, "r") as f:
+                meta = json.load(f)
+
+            meta["tags"] = s["tags"]
+
+            with open(meta_path, "w") as f:
+                json.dump(meta, f, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
 
 @app.route("/tags")
 def tags_index():

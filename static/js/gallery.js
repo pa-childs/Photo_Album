@@ -114,3 +114,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// Add Tag Button on Set Page
+document.addEventListener("DOMContentLoaded", function () {
+    const tagButton = document.getElementById("add-tag-button");
+    const tagForm = document.getElementById("add-tag-form");
+    const personButton = document.getElementById("add-person-button");
+    const personForm = document.getElementById("add-person-form");
+
+    if (tagButton && tagForm) {
+        tagButton.addEventListener("click", function () {
+            if (tagForm.style.display === "none" || tagForm.style.display === "") {
+                tagForm.style.display = "block";
+            } else {
+                tagForm.style.display = "none";
+            }
+        });
+    }
+
+    if (personButton && personForm) {
+        personButton.addEventListener("click", function () {
+            if (personForm.style.display === "none" || personForm.style.display === "") {
+                personForm.style.display = "block";
+            } else {
+                personForm.style.display = "none";
+            }
+        });
+    }
+});

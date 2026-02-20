@@ -1,6 +1,7 @@
 a {
     text-decoration: none;
     color: #344e41;
+    padding: 0px 4px;
 }
 
 a:hover {
@@ -48,6 +49,10 @@ hr {
     grid-template-columns: repeat(6, 1fr);
     gap: 15px;
     margin-top: 20px;
+}
+
+.inline-form {
+    display: inline;
 }
 
 .lightbox {
@@ -103,6 +108,19 @@ hr {
     margin-top: 0;
     margin: 0;
     color: #344e41
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 4px;
+}
+
+.remove-btn:hover {
+    color: red;
 }
 
 .set-card {
