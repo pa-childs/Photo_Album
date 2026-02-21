@@ -4,67 +4,63 @@
 
 <h1>{{ set.title }}</h1>
 
-{% if set.tags %}
-    <div class="set-tags">
-        <strong>Tags:</strong>
-        {% for tag in set.tags | sort(case_sensitive=False) %}
-            <span class="tag-item">
-                <a href="{{ url_for('view_tag', tag_name=tag) }}" class="tag-button">
-                    {{ tag }}
-                </a>
+<div class="set-tags">
+    <strong>Tags:</strong>
+    {% for tag in set.tags | sort(case_sensitive=False) %}
+        <span class="tag-item">
+            <a href="{{ url_for('view_tag', tag_name=tag) }}" class="tag-button">
+                {{ tag }}
+            </a>
 
-                <form method="POST"
-                      action="{{ url_for('remove_tag', slug=set.slug) }}"
-                      class="remove-form">
-                    <input type="hidden" name="tag_to_remove" value="{{ tag }}">
-                    <button type="submit" class="remove-btn">&times;</button>
-                </form>
-            </span>
-            {% if not loop.last %} {% endif %}
-        {% endfor %}
+            <form method="POST"
+                  action="{{ url_for('remove_tag', slug=set.slug) }}"
+                  class="remove-form">
+                <input type="hidden" name="tag_to_remove" value="{{ tag }}">
+                <button type="submit" class="remove-btn">&times;</button>
+            </form>
+        </span>
+        {% if not loop.last %} {% endif %}
+    {% endfor %}
 
-        <button type="button" id="add-tag-button">Add Tag</button>
+    <button type="button" id="add-tag-button">Add Tag</button>
 
-        <form method="POST"
-              action="{{ url_for('add_tag', slug=set.slug) }}"
-              id="add-tag-form"
-              style="display:none; margin-top:10px;">
-            <input type="text" name="new_tag" placeholder="Enter Tag" required>
-            <button type="submit">Save</button>
-        </form>
-    </div>
-{% endif %}
+    <form method="POST"
+          action="{{ url_for('add_tag', slug=set.slug) }}"
+          id="add-tag-form"
+          style="display:none; margin-top:10px;">
+        <input type="text" name="new_tag" placeholder="Enter Tag" required>
+        <button type="submit">Save</button>
+    </form>
+</div>
 
-{% if set.people %}
-    <div class="set-people">
-        <strong>People:</strong>
-        {% for person in set.people | sort(case_sensitive=False) %}
-            <span class="person-item">
-                <a href="{{ url_for('view_person', person_name=person) }}" class="people-button">
-                    {{ person }}
-                </a>
+<div class="set-people">
+    <strong>People:</strong>
+    {% for person in set.people | sort(case_sensitive=False) %}
+        <span class="person-item">
+            <a href="{{ url_for('view_person', person_name=person) }}" class="people-button">
+                {{ person }}
+            </a>
 
-                <form method="POST"
-                      action="{{ url_for('remove_person', slug=set.slug) }}"
-                      class="remove-form">
-                    <input type="hidden" name="person_to_remove" value="{{ person }}">
-                    <button type="submit" class="remove-btn">&times;</button>
-                </form>
-            </span>
-            {% if not loop.last %} {% endif %}
-        {% endfor %}
+            <form method="POST"
+                  action="{{ url_for('remove_person', slug=set.slug) }}"
+                  class="remove-form">
+                <input type="hidden" name="person_to_remove" value="{{ person }}">
+                <button type="submit" class="remove-btn">&times;</button>
+            </form>
+        </span>
+        {% if not loop.last %} {% endif %}
+    {% endfor %}
 
-        <button type="button" id="add-person-button">Add Person</button>
+    <button type="button" id="add-person-button">Add Person</button>
 
-        <form method="POST"
-              action="{{ url_for('add_person', slug=set.slug) }}"
-              id="add-person-form"
-              style="display:none; margin-top:10px;">
-            <input type="text" name="new_person" placeholder="Enter Name" required>
-            <button type="submit">Save</button>
-        </form>
-    </div>
-{% endif %}
+    <form method="POST"
+          action="{{ url_for('add_person', slug=set.slug) }}"
+          id="add-person-form"
+          style="display:none; margin-top:10px;">
+        <input type="text" name="new_person" placeholder="Enter Name" required>
+        <button type="submit">Save</button>
+    </form>
+</div>
 
 <div class="images-grid">
     {% for image in set.images %}
@@ -87,4 +83,3 @@
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 
 {% endblock %}
-
