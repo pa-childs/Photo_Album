@@ -40,15 +40,15 @@ def add_person(slug):
             if new_person.lower() not in existing_people_lower:
                 s["people"].append(new_person)
 
-                meta_path = os.path.join("static", "sets", slug, "meta.json")
+                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-                with open(meta_path, "r") as f:
-                    meta = json.load(f)
+                with open(meta_path, "r") as file:
+                    meta = json.load(file)
 
                 meta["people"] = s["people"]
 
-                with open(meta_path, "w") as f:
-                    json.dump(meta, f, indent=4)
+                with open(meta_path, "w") as file:
+                    json.dump(meta, file, indent=4)
 
             break
 
@@ -72,15 +72,15 @@ def add_tag(slug):
                 s["tags"].append(new_tag)
 
                 # Update meta.json
-                meta_path = os.path.join("static", "sets", slug, "meta.json")
+                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-                with open(meta_path, "r") as f:
-                    meta = json.load(f)
+                with open(meta_path, "r") as file:
+                    meta = json.load(file)
 
                 meta["tags"] = s["tags"]
 
-                with open(meta_path, "w") as f:
-                    json.dump(meta, f, indent=4)
+                with open(meta_path, "w") as file:
+                    json.dump(meta, file, indent=4)
 
             break
 
@@ -121,8 +121,8 @@ def load_all_sets():
         if not os.path.exists(meta_path):
             continue
 
-        with open(meta_path) as f:
-            meta = json.load(f)
+        with open(meta_path) as file:
+            meta = json.load(file)
 
         images = [
             file for file in os.listdir(set_path)
@@ -154,7 +154,7 @@ def load_all_sets():
             "mtime": folder_mtime
         })
 
-        sets.sort(key=lambda s: s["mtime"], reverse=True)
+    sets.sort(key=lambda s: s["mtime"], reverse=True)
 
     return sets
 
@@ -200,15 +200,15 @@ def remove_person(slug):
 
             s["people"] = [p for p in s["people"] if p.lower() != person_to_remove.lower()]
 
-            meta_path = os.path.join("static", "sets", slug, "meta.json")
+            meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-            with open(meta_path, "r") as f:
-                meta = json.load(f)
+            with open(meta_path, "r") as file:
+                meta = json.load(file)
 
             meta["people"] = s["people"]
 
-            with open(meta_path, "w") as f:
-                json.dump(meta, f, indent=4)
+            with open(meta_path, "w") as file:
+                json.dump(meta, file, indent=4)
 
             break
 
@@ -225,15 +225,15 @@ def remove_tag(slug):
 
             s["tags"] = [t for t in s["tags"] if t.lower() != tag_to_remove.lower()]
 
-            meta_path = os.path.join("static", "sets", slug, "meta.json")
+            meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-            with open(meta_path, "r") as f:
-                meta = json.load(f)
+            with open(meta_path, "r") as file:
+                meta = json.load(file)
 
             meta["tags"] = s["tags"]
 
-            with open(meta_path, "w") as f:
-                json.dump(meta, f, indent=4)
+            with open(meta_path, "w") as file:
+                json.dump(meta, file, indent=4)
 
             break
 

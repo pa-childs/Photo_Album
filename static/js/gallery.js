@@ -1,12 +1,13 @@
+let currentImageIndex = 0;
+let galleryImages = [];
+
 // For lightbox
-let zoomLevel = 1;
-let panX = 0;
-let panY = 0;
-let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
-
-let galleryImages = [];
+let isDragging = false;
+let panX = 0;
+let panY = 0;
+let zoomLevel = 1;
 
 // Lightbox functions
 function openLightbox(index) {
