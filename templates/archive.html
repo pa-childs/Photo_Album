@@ -3,15 +3,24 @@
 {% block content %}
 
 {% if not filter_type %}
-
     <div class="archive-sort">
-        Sort:
-        <a href="{{ url_for('archive') }}">Most Recent</a> |
-        <!--
-        <a href="{{ url_for('archive', sort='title') }}">A–Z</a> |
-        -->
-        <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
-        <a href="{{ url_for('archive', sort='random') }}">Random</a>
+        {% if mode != "art" %}
+            Sort:
+            <a href="{{ url_for('archive') }}">Most Recent</a> |
+            <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
+            <a href="{{ url_for('archive', sort='random') }}">Random</a>
+        {% endif %}
+
+        <div class="mode-switcher">
+            <select onchange="window.location.href=this.value">
+                <option value="{{ url_for('archive', mode='art') }}" {% if mode == 'art' %}selected{% endif %}>
+                    Art
+                </option>
+                <option value="{{ url_for('archive') }}" {% if mode == 'photo' %}selected{% endif %}>
+                    Photography
+                </option>
+            </select>
+        </div>
     </div>
 
     <hr>
@@ -20,31 +29,58 @@
 {% if filter_type %}
     <div class="archive-filter">
         <span class="filter-label">Filtered By:</span>
-
         <span class="tag-button filter-pill">
             {{ filter_value }}
         </span>
     </div>
 {% endif %}
 
-<div class="sets-grid">
-    {% for set in sets %}
-        <a href="/set/{{ set.slug }}" class="set-card">
-            {% if set.cover %}
-                <div class="set-image">
-                    <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
-                </div>
-            {% endif %}
-            <div class="set-info">
-                <div class="set-info-header">
-                    <h2>{{ set.title }}</h2>
-                    <div class="image-count-badge">
-                        {{ set.image_count }} Images
+{% if mode == "art" and grouped_art %}
+    {% for series_name, issues in grouped_art.items() %}
+        <div class="series-group">
+            <h2 class="series-title">{{ series_name }}</h2>
+            <div class="sets-grid">
+                {% for set in issues %}
+                    <a href="/set/{{ set.slug }}" class="set-card">
+                        {% if set.cover %}
+                            <div class="set-image">
+                                <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
+                            </div>
+                        {% endif %}
+                        <div class="set-info">
+                            <div class="set-info-header">
+                                <h2>{{ set.title }}</h2>
+                                <div class="image-count-badge">
+                                    {{ set.image_count }} Images
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+{% else %}
+    <div class="sets-grid">
+        {% for set in sets %}
+            <a href="/set/{{ set.slug }}" class="set-card">
+                {% if set.cover %}
+                    <div class="set-image">
+                        <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
+                    </div>
+                {% endif %}
+                <div class="set-info">
+                    <div class="set-info-header">
+                        <h2>{{ set.title }}</h2>
+                        <div class="image-count-badge">
+                            {{ set.image_count }} Images
+                        </div>
                     </div>
                 </div>
-            </div>
-        </a>
-    {% endfor %}
-</div>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
 
 {% endblock %}

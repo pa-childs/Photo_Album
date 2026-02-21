@@ -31,24 +31,24 @@ def add_person(slug):
     if not new_person:
         return redirect(url_for("view_set", slug=slug))
 
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
-    for s in sets:
-        if s["slug"] == slug:
-            existing_people_lower = [p.lower() for p in s["people"]]
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            existing_people_lower = [person.lower() for person in image_set["people"]]
 
             if new_person.lower() not in existing_people_lower:
-                s["people"].append(new_person)
+                image_set["people"].append(new_person)
 
                 meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-                with open(meta_path, "r") as file:
-                    meta = json.load(file)
+                with open(meta_path, "r") as meta_file:
+                    meta = json.load(meta_file)
 
-                meta["people"] = s["people"]
+                meta["people"] = image_set["people"]
 
-                with open(meta_path, "w") as file:
-                    json.dump(meta, file, indent=4)
+                with open(meta_path, "w") as meta_file:
+                    json.dump(meta, meta_file, indent=4)
 
             break
 
@@ -62,25 +62,24 @@ def add_tag(slug):
     if not new_tag:
         return redirect(url_for("view_set", slug=slug))
 
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
-    for s in sets:
-        if s["slug"] == slug:
-            existing_tags_lower = [t.lower() for t in s["tags"]]
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            existing_tags_lower = [tag.lower() for tag in image_set["tags"]]
 
             if new_tag.lower() not in existing_tags_lower:
-                s["tags"].append(new_tag)
+                image_set["tags"].append(new_tag)
 
-                # Update meta.json
                 meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-                with open(meta_path, "r") as file:
-                    meta = json.load(file)
+                with open(meta_path, "r") as meta_file:
+                    meta = json.load(meta_file)
 
-                meta["tags"] = s["tags"]
+                meta["tags"] = image_set["tags"]
 
-                with open(meta_path, "w") as file:
-                    json.dump(meta, file, indent=4)
+                with open(meta_path, "w") as meta_file:
+                    json.dump(meta, meta_file, indent=4)
 
             break
 
@@ -88,28 +87,49 @@ def add_tag(slug):
 
 @app.route("/")
 def archive():
-    sets = load_all_sets()
+    all_sets = load_all_sets()
+    mode = request.args.get("mode", "photo")
     sort = request.args.get("sort")
 
+    if mode == "art":
+        all_sets = [image_set for image_set in all_sets if image_set["type"] == "art"]
+
+        grouped_art = defaultdict(list)
+        for image_set in all_sets:
+            series_name = image_set["series"] or image_set["title"]
+            grouped_art[series_name].append(image_set)
+
+        for series in grouped_art.values():
+            series.sort(key=lambda image_set: image_set["issue"] or 0)
+
+        return render_template(
+            "archive.html",
+            sets=all_sets,
+            grouped_art=dict(sorted(grouped_art.items())),
+            mode=mode,
+            current_sort=None
+        )
+
+    # Photo mode (default)
+    all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
+
     if sort == "title":
-        sets.sort(key=lambda s: s["title"].lower())
-
+        all_sets.sort(key=lambda image_set: image_set["title"].lower())
     elif sort == "images":
-        sets.sort(key=lambda s: s["image_count"], reverse=True)
-
+        all_sets.sort(key=lambda image_set: image_set["image_count"], reverse=True)
     elif sort == "random":
-        random.shuffle(sets)
-
-    # default already sorted by newest
+        random.shuffle(all_sets)
 
     return render_template(
         "archive.html",
-        sets=sets,
+        sets=all_sets,
+        grouped_art=None,
+        mode=mode,
         current_sort=sort
     )
 
 def load_all_sets():
-    sets = []
+    all_sets = []
 
     for folder in os.listdir(SETS_DIR):
         set_path = os.path.join(SETS_DIR, folder)
@@ -121,8 +141,8 @@ def load_all_sets():
         if not os.path.exists(meta_path):
             continue
 
-        with open(meta_path) as file:
-            meta = json.load(file)
+        with open(meta_path) as meta_file:
+            meta = json.load(meta_file)
 
         images = [
             file for file in os.listdir(set_path)
@@ -142,7 +162,7 @@ def load_all_sets():
 
         folder_mtime = os.path.getmtime(set_path)
 
-        sets.append({
+        all_sets.append({
             "slug": folder,
             "title": meta.get("title", folder),
             "description": meta.get("description", ""),
@@ -151,21 +171,24 @@ def load_all_sets():
             "images": images,
             "cover": cover,
             "image_count": len(images),
-            "mtime": folder_mtime
+            "mtime": folder_mtime,
+            "type": meta.get("type", "photo").lower(),
+            "series": meta.get("series", None),
+            "issue": meta.get("issue", None)
         })
 
-    sets.sort(key=lambda s: s["mtime"], reverse=True)
+    all_sets.sort(key=lambda image_set: image_set["mtime"], reverse=True)
 
-    return sets
+    return all_sets
 
 @app.route("/people")
 def people_index():
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
     people_counts = {}
 
-    for s in sets:
-        for person in s["people"]:
+    for image_set in all_sets:
+        for person in image_set["people"]:
             people_counts[person] = people_counts.get(person, 0) + 1
 
     sorted_people = sorted(people_counts.items())
@@ -174,7 +197,7 @@ def people_index():
 
     for label, count in sorted_people:
         if not label or not label.strip():
-            continue  # skip blanks safely
+            continue
 
         clean_label = label.strip()
         first_letter = clean_label[0].upper()
@@ -193,22 +216,21 @@ def people_index():
 def remove_person(slug):
     person_to_remove = request.form.get("person_to_remove", "")
 
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
-    for s in sets:
-        if s["slug"] == slug:
-
-            s["people"] = [p for p in s["people"] if p.lower() != person_to_remove.lower()]
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            image_set["people"] = [person for person in image_set["people"] if person.lower() != person_to_remove.lower()]
 
             meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-            with open(meta_path, "r") as file:
-                meta = json.load(file)
+            with open(meta_path, "r") as meta_file:
+                meta = json.load(meta_file)
 
-            meta["people"] = s["people"]
+            meta["people"] = image_set["people"]
 
-            with open(meta_path, "w") as file:
-                json.dump(meta, file, indent=4)
+            with open(meta_path, "w") as meta_file:
+                json.dump(meta, meta_file, indent=4)
 
             break
 
@@ -218,22 +240,21 @@ def remove_person(slug):
 def remove_tag(slug):
     tag_to_remove = request.form.get("tag_to_remove", "")
 
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
-    for s in sets:
-        if s["slug"] == slug:
-
-            s["tags"] = [t for t in s["tags"] if t.lower() != tag_to_remove.lower()]
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            image_set["tags"] = [tag for tag in image_set["tags"] if tag.lower() != tag_to_remove.lower()]
 
             meta_path = os.path.join(SETS_DIR, slug, "meta.json")
 
-            with open(meta_path, "r") as file:
-                meta = json.load(file)
+            with open(meta_path, "r") as meta_file:
+                meta = json.load(meta_file)
 
-            meta["tags"] = s["tags"]
+            meta["tags"] = image_set["tags"]
 
-            with open(meta_path, "w") as file:
-                json.dump(meta, file, indent=4)
+            with open(meta_path, "w") as meta_file:
+                json.dump(meta, meta_file, indent=4)
 
             break
 
@@ -241,23 +262,21 @@ def remove_tag(slug):
 
 @app.route("/tags")
 def tags_index():
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
     tag_counts = {}
 
-    for s in sets:
-        for tag in s["tags"]:
+    for image_set in all_sets:
+        for tag in image_set["tags"]:
             tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
-    # Sort alphabetically
     sorted_tags = sorted(tag_counts.items())
 
-    # Group by first letter
     grouped_tags = defaultdict(list)
 
     for label, count in sorted_tags:
         if not label or not label.strip():
-            continue  # skip empty tags safely
+            continue
 
         clean_label = label.strip()
         first_letter = clean_label[0].upper()
@@ -274,22 +293,24 @@ def tags_index():
 
 @app.route("/set/<slug>")
 def view_set(slug):
-    sets = load_all_sets()
-    set_obj = next((s for s in sets if s["slug"] == slug), None)
+    all_sets = load_all_sets()
+    image_set = next((image_set for image_set in all_sets if image_set["slug"] == slug), None)
 
-    if not set_obj:
+    if not image_set:
         return "Set not found", 404
 
-    return render_template("set.html", set=set_obj)
+    return render_template("set.html", set=image_set)
 
 @app.route("/tag/<tag_name>")
 def view_tag(tag_name):
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
     filtered = [
-        s for s in sets
-        if tag_name in s["tags"]
+        image_set for image_set in all_sets
+        if tag_name in image_set["tags"]
     ]
+
+    filtered.sort(key=lambda image_set: (image_set["series"] or "", image_set["issue"] or 0))
 
     return render_template(
         "archive.html",
@@ -300,11 +321,11 @@ def view_tag(tag_name):
 
 @app.route("/person/<person_name>")
 def view_person(person_name):
-    sets = load_all_sets()
+    all_sets = load_all_sets()
 
     filtered = [
-        s for s in sets
-        if person_name in s["people"]
+        image_set for image_set in all_sets
+        if person_name in image_set["people"]
     ]
 
     return render_template(
