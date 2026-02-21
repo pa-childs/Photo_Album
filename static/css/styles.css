@@ -9,6 +9,10 @@ a:hover {
     color: #6C9D85;
 }
 
+.archive-filter {
+    margin-bottom: 20px;   /* adjust to taste */
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #dad7cd;
@@ -19,7 +23,7 @@ button {
     display: inline-block;
     padding: 4px 8px;
     border: 2px solid #344e41;
-    background-color: #ffffff;
+    background-color: #C2D6C2;
     color: #344e41;
     text-decoration: none;
     border-radius: 6px;
@@ -29,6 +33,17 @@ button {
 
 button:hover {
     color: #6C9D85;
+}
+
+.filter-pill {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    background-color: #CFD6C2;
+    color: #344e41;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
 }
 
 .gallery-image {
@@ -226,8 +241,8 @@ hr {
 
 .set-info-header {
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
     gap: 10px;
 }
 
@@ -250,6 +265,10 @@ hr {
 
 .set-tags,
 .set-people {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
     margin-top: 10px;
     font-size: 0.9rem;
 }
@@ -271,7 +290,6 @@ hr {
     display: inline-block;
     padding: 6px 12px;
     border-radius: 6px;
-    background: #e5e5e5;
     text-decoration: none;
     position: relative;
 }
@@ -283,14 +301,14 @@ hr {
 .tag-item,
 .person-item {
     position: relative;
-    display: inline-block;
 }
 
-.tag-item a {
+.tag-item a,
+.person-item a {
     display: inline-block;
     padding: 4px 8px;
     border: 2px solid #344e41;
-    background-color: #ffffff;
+    background-color: #CFD6C2;
     color: #344e41;
     text-decoration: none;
     border-radius: 6px;
@@ -303,12 +321,6 @@ hr {
     margin-bottom: 10px;
     border-bottom: 1px solid #ddd;
     padding-bottom: 4px;
-}
-
-.tag-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
 }
 
 .tag-item:hover .remove-btn,

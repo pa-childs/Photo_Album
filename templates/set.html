@@ -20,7 +20,7 @@
                     <button type="submit" class="remove-btn">&times;</button>
                 </form>
             </span>
-            {% if not loop.last %} | {% endif %}
+            {% if not loop.last %} {% endif %}
         {% endfor %}
 
         <button type="button" id="add-tag-button">Add Tag</button>
@@ -51,7 +51,7 @@
                     <button type="submit" class="remove-btn">&times;</button>
                 </form>
             </span>
-            {% if not loop.last %} | {% endif %}
+            {% if not loop.last %} {% endif %}
         {% endfor %}
 
         <button type="button" id="add-person-button">Add Person</button>

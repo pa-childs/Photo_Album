@@ -18,9 +18,13 @@
 {% endif %}
 
 {% if filter_type %}
-    <h2>
-        Collections filtered: {{ filter_value }}
-    </h2>
+    <div class="archive-filter">
+        <span class="filter-label">Filtered By:</span>
+
+        <span class="tag-button filter-pill">
+            {{ filter_value }}
+        </span>
+    </div>
 {% endif %}
 
 <div class="sets-grid">
