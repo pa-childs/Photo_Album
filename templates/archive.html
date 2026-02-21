@@ -24,6 +24,12 @@
     </div>
 
     <hr>
+
+    <div class="archive-filter-box">
+        <label for="archive-search">Filter:</label>
+        <input type="text" id="archive-search">
+    </div>
+
 {% endif %}
 
 {% if filter_type %}
@@ -82,5 +88,52 @@
         {% endfor %}
     </div>
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("archive-search");
+    if (!searchInput) return;
+
+    searchInput.addEventListener("input", function () {
+        const searchTerm = searchInput.value.toLowerCase();
+
+        {% if mode == "art" %}
+            const seriesGroups = document.querySelectorAll(".series-group");
+
+            seriesGroups.forEach(function (seriesGroup) {
+                const setCards = seriesGroup.querySelectorAll(".set-card");
+                let visibleCount = 0;
+
+                setCards.forEach(function (setCard) {
+                    const title = setCard.querySelector("h2").textContent.toLowerCase();
+                    const seriesTitle = seriesGroup.querySelector(".series-title").textContent.toLowerCase();
+
+                    if (title.includes(searchTerm) || seriesTitle.includes(searchTerm)) {
+                        setCard.style.display = "";
+                        visibleCount++;
+                    } else {
+                        setCard.style.display = "none";
+                    }
+                });
+
+                seriesGroup.style.display = visibleCount === 0 ? "none" : "";
+            });
+
+        {% else %}
+            const setCards = document.querySelectorAll(".set-card");
+
+            setCards.forEach(function (setCard) {
+                const title = setCard.querySelector("h2").textContent.toLowerCase();
+
+                if (title.includes(searchTerm)) {
+                    setCard.style.display = "";
+                } else {
+                    setCard.style.display = "none";
+                }
+            });
+        {% endif %}
+    });
+});
+</script>
 
 {% endblock %}

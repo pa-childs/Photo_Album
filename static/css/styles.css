@@ -13,6 +13,25 @@ a:hover {
     margin-bottom: 20px;   /* adjust to taste */
 }
 
+.archive-filter-box {
+    margin-bottom: 20px;
+}
+
+.archive-filter-box input {
+    padding: 6px 10px;
+    border: 2px solid #344e41;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #344e41;
+    font-size: 0.9rem;
+    width: 250px;
+}
+
+.archive-filter-box input:focus {
+    outline: none;
+    border-color: #6C9D85;
+}
+
 .archive-sort {
     display: flex;
     align-items: center;
