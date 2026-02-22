@@ -27,7 +27,7 @@
     <form method="POST"
           action="{{ url_for('add_tag', slug=set.slug) }}"
           id="add-tag-form"
-          style="display:none; margin-top:10px;">
+          style="display:none;">
         <input type="text" name="new_tag" placeholder="Enter Tag" required>
         <button type="submit">Save</button>
     </form>
@@ -56,7 +56,7 @@
     <form method="POST"
           action="{{ url_for('add_person', slug=set.slug) }}"
           id="add-person-form"
-          style="display:none; margin-top:10px;">
+          style="display:none;">
         <input type="text" name="new_person" placeholder="Enter Name" required>
         <button type="submit">Save</button>
     </form>

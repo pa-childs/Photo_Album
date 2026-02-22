@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const isHidden = tagForm.style.display === "none" || tagForm.style.display === "";
 
-            tagForm.style.display = isHidden ? "block" : "none";
+            tagForm.style.display = isHidden ? "inline-flex" : "none";
 
             // If we just opened it, focus the input
             if (isHidden) {
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const isHidden = personForm.style.display === "none" || personForm.style.display === "";
 
-            personForm.style.display = isHidden ? "block" : "none";
+            personForm.style.display = isHidden ? "inline-flex" : "none";
 
             // If we just opened it, focus the input
             if (isHidden) {

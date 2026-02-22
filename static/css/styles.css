@@ -9,6 +9,29 @@ a:hover {
     color: #6C9D85;
 }
 
+#add-tag-form,
+#add-person-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#add-tag-form input,
+#add-person-form input {
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #344e41;
+    font-size: 0.9rem;
+}
+
+#add-tag-form input:focus,
+#add-person-form input:focus {
+    outline: none;
+    border-color: #6C9D85;
+}
+
 .archive-filter {
     margin-bottom: 20px;   /* adjust to taste */
 }
