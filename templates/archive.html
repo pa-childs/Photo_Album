@@ -4,12 +4,10 @@
 
 {% if not filter_type %}
     <div class="archive-sort">
-        {% if mode != "art" %}
-            Sort:
-            <a href="{{ url_for('archive') }}">Most Recent</a> |
-            <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
-            <a href="{{ url_for('archive', sort='random') }}">Random</a>
-        {% endif %}
+        <div class="archive-filter-box">
+            <label for="archive-search">Filter:</label>
+            <input type="text" id="archive-search">
+        </div>
 
         <div class="mode-switcher">
             <select onchange="window.location.href=this.value">
@@ -23,12 +21,14 @@
         </div>
     </div>
 
-    <hr>
-
-    <div class="archive-filter-box">
-        <label for="archive-search">Filter:</label>
-        <input type="text" id="archive-search">
-    </div>
+    {% if mode != "art" %}
+        <div class="archive-sort-links">
+            Sort:
+            <a href="{{ url_for('archive') }}">Most Recent</a> |
+            <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
+            <a href="{{ url_for('archive', sort='random') }}">Random</a>
+        </div>
+    {% endif %}
 
 {% endif %}
 

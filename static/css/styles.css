@@ -32,12 +32,15 @@ a:hover {
     border-color: #6C9D85;
 }
 
-.archive-filter {
-    margin-bottom: 20px;   /* adjust to taste */
+.archive-filter-box {
+    margin-bottom: 0;
 }
 
 .archive-filter-box {
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .archive-filter-box input {
@@ -59,6 +62,11 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.archive-sort-links {
+    margin-bottom: 20px;
+    margin-top: 10px;
 }
 
 body {
