@@ -9,6 +9,7 @@
             <input type="text" id="archive-search">
         </div>
 
+        {% if art_section %}
         <div class="mode-switcher">
             <select onchange="window.location.href=this.value">
                 <option value="{{ url_for('archive', mode='art') }}" {% if mode == 'art' %}selected{% endif %}>
@@ -19,6 +20,7 @@
                 </option>
             </select>
         </div>
+        {% endif %}
     </div>
 
     {% if mode != "art" %}

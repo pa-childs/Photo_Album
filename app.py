@@ -10,6 +10,9 @@ SETS_DIR = os.path.join(app.static_folder, "sets")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
+# Set to False to hide the art section entirely from the UI
+ART_SECTION = True
+
 def normalize_name(value):
     value = value.strip()
 
@@ -91,6 +94,10 @@ def archive():
     mode = request.args.get("mode", "photo")
     sort = request.args.get("sort")
 
+    # If art section is disabled, force photo mode
+    if not ART_SECTION:
+        mode = "photo"
+
     if mode == "art":
         all_sets = [image_set for image_set in all_sets if image_set["type"] == "art"]
 
@@ -107,11 +114,14 @@ def archive():
             sets=all_sets,
             grouped_art=dict(sorted(grouped_art.items())),
             mode=mode,
-            current_sort=None
+            current_sort=None,
+            art_section=ART_SECTION
         )
 
     # Photo mode (default)
-    all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
+    # When art section is disabled, show all types rather than hiding art sets
+    if ART_SECTION:
+        all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
 
     if sort == "title":
         all_sets.sort(key=lambda image_set: image_set["title"].lower())
@@ -125,7 +135,8 @@ def archive():
         sets=all_sets,
         grouped_art=None,
         mode=mode,
-        current_sort=sort
+        current_sort=sort,
+        art_section=ART_SECTION
     )
 
 def load_all_sets():
