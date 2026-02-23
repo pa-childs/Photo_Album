@@ -18,9 +18,17 @@ function openLightbox(index) {
 
     image.src = galleryImages[currentImageIndex];
     lightbox.style.display = "flex";
+
+    updateCounter();
+    updateDownloadLink();
+    updateActiveThumbnail();
 }
 
 function closeLightbox() {
+    // Exit fullscreen if active when closing
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    }
     document.getElementById("lightbox").style.display = "none";
 }
 
@@ -46,14 +54,90 @@ function updateLightboxImage() {
     panX = 0;
     panY = 0;
     img.style.transform = `translate(0px, 0px) scale(1)`;
+
+    updateCounter();
+    updateDownloadLink();
+    updateActiveThumbnail();
 }
 
 function zoomImage(delta) {
     const img = document.getElementById("lightbox-image");
     zoomLevel += delta;
-    if (zoomLevel < 1) zoomLevel = 1; // prevent negative zoom
-    if (zoomLevel > 5) zoomLevel = 5; // optional max zoom
+    if (zoomLevel < 1) zoomLevel = 1;
+    if (zoomLevel > 5) zoomLevel = 5;
+
+    // Reset pan if zoomed back to 1
+    if (zoomLevel === 1) {
+        panX = 0;
+        panY = 0;
+    }
+
     img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+}
+
+// Image counter
+function updateCounter() {
+    const counter = document.getElementById("lightbox-counter");
+    if (counter) {
+        counter.textContent = `${currentImageIndex + 1} of ${galleryImages.length}`;
+    }
+}
+
+// Download button - points to current image
+function updateDownloadLink() {
+    const link = document.getElementById("lightbox-download");
+    if (link) {
+        const src = galleryImages[currentImageIndex];
+        link.href = src;
+        // Use the filename from the path as the download name
+        link.download = src.split("/").pop();
+    }
+}
+
+// Fullscreen toggle
+function toggleFullscreen() {
+    const lightbox = document.getElementById("lightbox");
+    if (!document.fullscreenElement) {
+        lightbox.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// Thumbnail strip
+function buildThumbnails() {
+    const strip = document.getElementById("lightbox-thumbnails");
+    if (!strip) return;
+
+    strip.innerHTML = "";
+
+    galleryImages.forEach((src, index) => {
+        const thumb = document.createElement("img");
+        thumb.src = src;
+        thumb.className = "lightbox-thumb";
+        thumb.addEventListener("click", (e) => {
+            e.stopPropagation();
+            currentImageIndex = index;
+            updateLightboxImage();
+        });
+        strip.appendChild(thumb);
+    });
+}
+
+function updateActiveThumbnail() {
+    const thumbs = document.querySelectorAll(".lightbox-thumb");
+    thumbs.forEach((thumb, index) => {
+        thumb.classList.toggle("lightbox-thumb-active", index === currentImageIndex);
+    });
+
+    // Scroll the active thumbnail into view within the strip
+    if (thumbs[currentImageIndex]) {
+        thumbs[currentImageIndex].scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "center"
+        });
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,6 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     galleryImages = Array.from(document.querySelectorAll(".gallery-image"))
         .map(img => img.src);
+
+    // Build thumbnail strip once on load
+    buildThumbnails();
 
     if (img) {
         // Start dragging
@@ -96,6 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.target.id === "lightbox") closeLightbox();
         });
 
+        // Fullscreen button
+        document.getElementById("lightbox-fullscreen").addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        });
+
         // Keyboard controls
         document.addEventListener("keydown", (e) => {
             const lightbox = document.getElementById("lightbox");
@@ -104,6 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === "Escape") closeLightbox();
             if (e.key === "ArrowRight") showNextImage();
             if (e.key === "ArrowLeft") showPrevImage();
+            if (e.key === "f" || e.key === "F") toggleFullscreen();
         });
 
         // Wheel for zoom
@@ -129,7 +223,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             tagForm.style.display = isHidden ? "inline-flex" : "none";
 
-            // If we just opened it, focus the input
             if (isHidden) {
                 const input = tagForm.querySelector("input[name='new_tag']");
                 if (input) {
@@ -146,7 +239,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             personForm.style.display = isHidden ? "inline-flex" : "none";
 
-            // If we just opened it, focus the input
             if (isHidden) {
                 const input = personForm.querySelector("input[name='new_person']");
                 if (input) {

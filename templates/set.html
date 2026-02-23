@@ -75,9 +75,21 @@
 
 <div id="lightbox" class="lightbox" style="display: none;">
     <span class="lightbox-close">&times;</span>
+
+    <!-- Top bar: counter, fullscreen, download -->
+    <div class="lightbox-toolbar">
+        <span id="lightbox-counter" class="lightbox-counter"></span>
+        <button id="lightbox-fullscreen" class="lightbox-toolbar-btn" title="Fullscreen">&#x26F6;</button>
+        <a id="lightbox-download" class="lightbox-toolbar-btn" title="Download" download>&#8659;</a>
+    </div>
+
     <img id="lightbox-image" src="" alt="">
+
     <div class="lightbox-nav lightbox-prev">&#10094;</div>
     <div class="lightbox-nav lightbox-next">&#10095;</div>
+
+    <!-- Thumbnail strip -->
+    <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
 </div>
 
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
