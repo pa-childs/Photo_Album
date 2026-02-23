@@ -32,8 +32,8 @@ a:hover {
     border-color: #6C9D85;
 }
 
-.archive-filter-box {
-    margin-bottom: 0;
+.archive-filter {
+    margin-bottom: 10px;
 }
 
 .archive-filter-box {
