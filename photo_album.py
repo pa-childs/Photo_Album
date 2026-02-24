@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, request, url_for
 from collections import defaultdict
 
-import json, os, random
+import argparse, json, os, random
 
 app = Flask(__name__)
 
@@ -346,5 +346,10 @@ def view_person(person_name):
         filter_value=person_name
     )
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+    args = parser.parse_args()
+
+    host = '127.0.0.1' if args.debug else '0.0.0.0'
+    app.run(host=host, port=5000, debug=args.debug)
