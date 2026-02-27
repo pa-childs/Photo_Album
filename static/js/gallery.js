@@ -1,5 +1,6 @@
 let currentImageIndex = 0;
 let galleryImages = [];
+let galleryThumbs = [];
 
 // For lightbox
 let dragStartX = 0;
@@ -22,6 +23,7 @@ function openLightbox(index) {
     updateCounter();
     updateDownloadLink();
     updateActiveThumbnail();
+    preloadAdjacentImages();
 }
 
 function closeLightbox() {
@@ -58,6 +60,7 @@ function updateLightboxImage() {
     updateCounter();
     updateDownloadLink();
     updateActiveThumbnail();
+    preloadAdjacentImages();
 }
 
 function zoomImage(delta) {
@@ -83,13 +86,12 @@ function updateCounter() {
     }
 }
 
-// Download button - points to current image
+// Download button - points to current full-size image
 function updateDownloadLink() {
     const link = document.getElementById("lightbox-download");
     if (link) {
         const src = galleryImages[currentImageIndex];
         link.href = src;
-        // Use the filename from the path as the download name
         link.download = src.split("/").pop();
     }
 }
@@ -104,14 +106,26 @@ function toggleFullscreen() {
     }
 }
 
-// Thumbnail strip
+// Preload the full-size images immediately before and after the current one
+function preloadAdjacentImages() {
+    const indices = [
+        (currentImageIndex - 1 + galleryImages.length) % galleryImages.length,
+        (currentImageIndex + 1) % galleryImages.length
+    ];
+    indices.forEach(i => {
+        const pre = new Image();
+        pre.src = galleryImages[i];
+    });
+}
+
+// Thumbnail strip - uses 150px thumbnails
 function buildThumbnails() {
     const strip = document.getElementById("lightbox-thumbnails");
     if (!strip) return;
 
     strip.innerHTML = "";
 
-    galleryImages.forEach((src, index) => {
+    galleryThumbs.forEach((src, index) => {
         const thumb = document.createElement("img");
         thumb.src = src;
         thumb.className = "lightbox-thumb";
@@ -144,8 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const img = document.getElementById("lightbox-image");
 
-    galleryImages = Array.from(document.querySelectorAll(".gallery-image"))
-        .map(img => img.src);
+    const galleryEls = Array.from(document.querySelectorAll(".gallery-image"));
+
+    // Full-size paths for the lightbox main image and preloading
+    galleryImages = galleryEls.map(img => img.dataset.src);
+
+    // 150px thumbnail paths for the lightbox strip
+    galleryThumbs = galleryEls.map(img => img.dataset.thumb);
 
     // Build thumbnail strip once on load
     buildThumbnails();

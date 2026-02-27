@@ -64,8 +64,12 @@
 
 <div class="images-grid">
     {% for image in set.images %}
+        {% set basename = image.rsplit('.', 1)[0] %}
         <img
-            src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ image) }}"
+            src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_400.jpg') }}"
+            data-src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ image) }}"
+            data-thumb="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_150.jpg') }}"
+            loading="lazy"
             class="gallery-image"
             data-index="{{ loop.index0 }}"
             onclick="openLightbox({{ loop.index0 }})"

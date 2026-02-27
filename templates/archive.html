@@ -51,8 +51,10 @@
                 {% for set in issues %}
                     <a href="/set/{{ set.slug }}" class="set-card" data-tags="{{ set.tags | join(',') | lower }}" data-people="{{ set.people | join(',') | lower }}">
                         {% if set.cover %}
+                            {% set basename = set.cover.rsplit('.', 1)[0] %}
                             <div class="set-image">
-                                <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
+                                <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_400.jpg') }}"
+                                     loading="lazy">
                             </div>
                         {% endif %}
                         <div class="set-info">
@@ -74,8 +76,10 @@
         {% for set in sets %}
             <a href="/set/{{ set.slug }}" class="set-card" data-tags="{{ set.tags | join(',') | lower }}" data-people="{{ set.people | join(',') | lower }}">
                 {% if set.cover %}
+                    {% set basename = set.cover.rsplit('.', 1)[0] %}
                     <div class="set-image">
-                        <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
+                        <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_400.jpg') }}"
+                             loading="lazy">
                     </div>
                 {% endif %}
                 <div class="set-info">
