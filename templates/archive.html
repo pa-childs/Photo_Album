@@ -5,7 +5,7 @@
 {% if not filter_type %}
     <div class="archive-sort">
         <div class="archive-filter-box">
-            <label for="archive-search">Filter:</label>
+            <label for="archive-search">Search:</label>
             <input type="text" id="archive-search">
         </div>
 
@@ -49,7 +49,7 @@
             <h2 class="series-title">{{ series_name }}</h2>
             <div class="sets-grid">
                 {% for set in issues %}
-                    <a href="/set/{{ set.slug }}" class="set-card">
+                    <a href="/set/{{ set.slug }}" class="set-card" data-tags="{{ set.tags | join(',') | lower }}" data-people="{{ set.people | join(',') | lower }}">
                         {% if set.cover %}
                             <div class="set-image">
                                 <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
@@ -72,7 +72,7 @@
 {% else %}
     <div class="sets-grid">
         {% for set in sets %}
-            <a href="/set/{{ set.slug }}" class="set-card">
+            <a href="/set/{{ set.slug }}" class="set-card" data-tags="{{ set.tags | join(',') | lower }}" data-people="{{ set.people | join(',') | lower }}">
                 {% if set.cover %}
                     <div class="set-image">
                         <img src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ set.cover) }}">
@@ -109,8 +109,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 setCards.forEach(function (setCard) {
                     const title = setCard.querySelector("h2").textContent.toLowerCase();
                     const seriesTitle = seriesGroup.querySelector(".series-title").textContent.toLowerCase();
+                    const tags = setCard.dataset.tags || "";
+                    const people = setCard.dataset.people || "";
 
-                    if (title.includes(searchTerm) || seriesTitle.includes(searchTerm)) {
+                    if (title.includes(searchTerm) || seriesTitle.includes(searchTerm) || tags.includes(searchTerm) || people.includes(searchTerm)) {
                         setCard.style.display = "";
                         visibleCount++;
                     } else {
@@ -126,8 +128,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setCards.forEach(function (setCard) {
                 const title = setCard.querySelector("h2").textContent.toLowerCase();
+                const tags = setCard.dataset.tags || "";
+                const people = setCard.dataset.people || "";
 
-                if (title.includes(searchTerm)) {
+                if (title.includes(searchTerm) || tags.includes(searchTerm) || people.includes(searchTerm)) {
                     setCard.style.display = "";
                 } else {
                     setCard.style.display = "none";
