@@ -176,7 +176,6 @@ def load_all_sets():
         all_sets.append({
             "slug": folder,
             "title": meta.get("title", folder),
-            "description": meta.get("description", ""),
             "tags": meta.get("tags", []),
             "people": meta.get("people", []),
             "images": images,
