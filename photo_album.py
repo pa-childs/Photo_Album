@@ -9,9 +9,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETS_DIR = os.path.join(app.static_folder, "sets")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-
-# Set to False to hide the art section entirely from the UI
-ART_SECTION = True
+ART_SECTION = True          # Set to False to hide the art section entirely from the UI
+LIGHTBOX_THUMBNAILS = False # Set to False to hide the thumbnail strip at the bottom of the lightbox
 
 def normalize_name(value):
     value = value.strip()
@@ -309,7 +308,11 @@ def view_set(slug):
     if not image_set:
         return "Set not found", 404
 
-    return render_template("set.html", set=image_set)
+    return render_template(
+        "set.html",
+        set=image_set,
+        lightbox_thumbnails=LIGHTBOX_THUMBNAILS
+    )
 
 @app.route("/tag/<tag_name>")
 def view_tag(tag_name):

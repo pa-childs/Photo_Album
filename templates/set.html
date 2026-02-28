@@ -68,7 +68,9 @@
         <img
             src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_400.jpg') }}"
             data-src="{{ url_for('static', filename='sets/' ~ set.slug ~ '/' ~ image) }}"
-            data-thumb="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_150.jpg') }}"
+            {% if lightbox_thumbnails %}
+                data-thumb="{{ url_for('static', filename='sets/' ~ set.slug ~ '/thumbnails/' ~ basename ~ '_thumb_150.jpg') }}"
+            {% endif %}
             loading="lazy"
             class="gallery-image"
             data-index="{{ loop.index0 }}"
@@ -92,8 +94,10 @@
     <div class="lightbox-nav lightbox-prev">&#10094;</div>
     <div class="lightbox-nav lightbox-next">&#10095;</div>
 
+    {% if lightbox_thumbnails %}
     <!-- Thumbnail strip -->
     <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
+    {% endif %}
 </div>
 
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
