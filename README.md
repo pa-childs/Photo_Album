@@ -62,3 +62,5 @@ The site expects three sets of image sizes
   * Thumbnail sized image for the thumbnail image navigation within the Lightbox
   * Images are stored in the static/sets folder. Each set folder has a thumbnails subdirectory where all thumbnails 
   for that set are stored.
+  * Image preparation for this photo album is made easier with this companion tool:
+    * https://github.com/pa-childs/Image_Processor
