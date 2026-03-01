@@ -3,12 +3,8 @@ let galleryImages = [];
 let galleryThumbs = [];
 
 // For lightbox
-let dragStartX = 0;
-let dragStartY = 0;
-let isDragging = false;
-let panX = 0;
-let panY = 0;
 let zoomLevel = 1;
+let scrollOffset = 0; // Manual vertical scroll position when zoomed
 
 // Lightbox functions
 function openLightbox(index) {
@@ -27,7 +23,6 @@ function openLightbox(index) {
 }
 
 function closeLightbox() {
-    // Exit fullscreen if active when closing
     if (document.fullscreenElement) {
         document.exitFullscreen();
     }
@@ -51,16 +46,19 @@ function updateLightboxImage() {
     const img = document.getElementById("lightbox-image");
     img.src = galleryImages[currentImageIndex];
 
-    // Reset zoom & pan
+    // Reset zoom and scroll
     zoomLevel = 1;
-    panX = 0;
-    panY = 0;
-    img.style.transform = `translate(0px, 0px) scale(1)`;
+    scrollOffset = 0;
+    applyTransform(img);
 
     updateCounter();
     updateDownloadLink();
     updateActiveThumbnail();
     preloadAdjacentImages();
+}
+
+function applyTransform(img) {
+    img.style.transform = `translateY(${scrollOffset}px) scale(${zoomLevel})`;
 }
 
 function zoomImage(delta) {
@@ -69,13 +67,27 @@ function zoomImage(delta) {
     if (zoomLevel < 1) zoomLevel = 1;
     if (zoomLevel > 5) zoomLevel = 5;
 
-    // Reset pan if zoomed back to 1
-    if (zoomLevel === 1) {
-        panX = 0;
-        panY = 0;
-    }
+    // Reset scroll offset when zooming back to 1
+    if (zoomLevel === 1) scrollOffset = 0;
 
-    img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    applyTransform(img);
+}
+
+function scrollImage(delta) {
+    // Only scroll if zoomed in
+    if (zoomLevel <= 1) return;
+
+    const img = document.getElementById("lightbox-image");
+
+    // Calculate how far the image extends beyond the viewport vertically
+    const imgHeight = img.getBoundingClientRect().height;
+    const viewportHeight = window.innerHeight;
+    const maxScroll = Math.max(0, (imgHeight - viewportHeight) / 2);
+
+    scrollOffset -= delta * 0.5;
+    scrollOffset = Math.max(-maxScroll, Math.min(maxScroll, scrollOffset));
+
+    applyTransform(img);
 }
 
 // Image counter
@@ -170,26 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
     buildThumbnails();
 
     if (img) {
-        // Start dragging
-        img.addEventListener("mousedown", (e) => {
-            isDragging = true;
-            dragStartX = e.clientX - panX;
-            dragStartY = e.clientY - panY;
-            img.style.cursor = "grabbing";
-        });
-
-        document.addEventListener("mousemove", (e) => {
-            if (!isDragging) return;
-            panX = e.clientX - dragStartX;
-            panY = e.clientY - dragStartY;
-            img.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
-        });
-
-        document.addEventListener("mouseup", () => {
-            isDragging = false;
-            img.style.cursor = "grab";
-        });
-
         // Lightbox close button
         document.querySelector(".lightbox-close").addEventListener("click", closeLightbox);
 
@@ -219,11 +211,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.key === "f" || e.key === "F") toggleFullscreen();
         });
 
-        // Wheel for zoom
+        // Ctrl+scroll to zoom, scroll alone scrolls the image vertically
         document.getElementById("lightbox").addEventListener("wheel", (e) => {
             e.preventDefault();
-            zoomImage(e.deltaY < 0 ? 0.1 : -0.1);
-        });
+            if (e.ctrlKey) {
+                zoomImage(e.deltaY < 0 ? 0.1 : -0.1);
+            } else {
+                scrollImage(e.deltaY);
+            }
+        }, { passive: false });
     }
 
 });

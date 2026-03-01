@@ -48,11 +48,11 @@ Image collections can be tagged in on of two ways:
 **Lightbox:**  
 Images are shown in lightbox which has the ability to:
   * User can cycle through pictures with arrows on screen or arrow keys on keyboard.
-  * User can select picture to view from thumbnail image navigation.
-  * User can zoom and pan with mouse scroll wheel.
+  * User can select picture to view from thumbnail image navigation (if enabled).
+  * User can zoom with the mouse wheel when the CTRL key is pressed
   * User can view the image full screen.
   * User can download image with a click of a button.
-  * User can close image by clicking outside the image or the X button.
+  * User can close image by clicking the X button.
   * Image counter added to the viewing area.
 
 **Image Notes:**  

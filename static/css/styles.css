@@ -32,8 +32,8 @@ a:hover {
     border-color: #6C9D85;
 }
 
-.archive-filter {
-    margin-bottom: 10px;
+.archive-filter-box {
+    margin-bottom: 0;
 }
 
 .archive-filter-box {
@@ -104,7 +104,7 @@ button:hover {
 
 .gallery-image {
     width: 100%;
-    height: 300px;
+    height: 250px;
     object-fit: cover;
     object-position: center top;
     display: block;
@@ -149,19 +149,45 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     z-index: 1000;
+}
+
+/* Scrollable area that sits between toolbar and thumbnail strip */
+.lightbox-image-area {
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #6C9D85 transparent;
+}
+
+.lightbox-image-area::-webkit-scrollbar {
+    width: 4px;
+}
+
+.lightbox-image-area::-webkit-scrollbar-thumb {
+    background-color: #6C9D85;
+    border-radius: 4px;
 }
 
 .lightbox img {
     max-width: 95%;
-    max-height: 80vh;
     object-fit: contain;
 }
 
 #lightbox-image {
-    cursor: grab;
-    transition: transform 0.2s ease;
+    cursor: default;
+    display: block;
+    margin: auto;
+    max-width: 90vw;
+    max-height: 75vh;
+    transition: transform 0.15s ease;
 }
 
 .lightbox-close {

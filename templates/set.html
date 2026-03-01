@@ -89,14 +89,16 @@
         <a id="lightbox-download" class="lightbox-toolbar-btn" title="Download" download>&#8659;</a>
     </div>
 
-    <img id="lightbox-image" src="" alt="">
+    <!-- Scrollable image area -->
+    <div class="lightbox-image-area">
+        <img id="lightbox-image" src="" alt="">
+    </div>
 
     <div class="lightbox-nav lightbox-prev">&#10094;</div>
     <div class="lightbox-nav lightbox-next">&#10095;</div>
-
     {% if lightbox_thumbnails %}
-    <!-- Thumbnail strip -->
-    <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
+        <!-- Thumbnail strip -->
+        <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
     {% endif %}
 </div>
 
