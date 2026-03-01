@@ -47,8 +47,8 @@ function updateLightboxImage() {
     img.src = galleryImages[currentImageIndex];
 
     // Reset zoom and scroll
-    zoomLevel = 1;
-    scrollOffset = 0;
+    //zoomLevel = 1;
+    //scrollOffset = 0;
     applyTransform(img);
 
     updateCounter();
