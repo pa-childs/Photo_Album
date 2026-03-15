@@ -191,7 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Close on background click
         document.getElementById("lightbox").addEventListener("click", (e) => {
-            if (e.target.id === "lightbox") closeLightbox();
+            if (e.target.id === "lightbox" || e.target.classList.contains("lightbox-image-area")) {
+                closeLightbox();
+            }
         });
 
         // Fullscreen button
