@@ -89,13 +89,15 @@
         <a id="lightbox-download" class="lightbox-toolbar-btn" title="Download" download>&#8659;</a>
     </div>
 
-    <!-- Scrollable image area -->
+    <!-- Scrollable image area - holds both current and incoming image for slide transition -->
     <div class="lightbox-image-area">
         <img id="lightbox-image" src="" alt="">
+        <img id="lightbox-image-incoming" src="" alt="">
     </div>
 
     <div class="lightbox-nav lightbox-prev">&#10094;</div>
     <div class="lightbox-nav lightbox-next">&#10095;</div>
+
     {% if lightbox_thumbnails %}
         <!-- Thumbnail strip -->
         <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>

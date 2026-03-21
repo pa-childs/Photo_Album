@@ -5,6 +5,7 @@ let galleryThumbs = [];
 // For lightbox
 let zoomLevel = 1;
 let scrollOffset = 0; // Manual vertical scroll position when zoomed
+let isTransitioning = false; // Prevent navigation during animation
 
 // Lightbox functions
 function openLightbox(index) {
@@ -13,7 +14,10 @@ function openLightbox(index) {
     const lightbox = document.getElementById("lightbox");
     const image = document.getElementById("lightbox-image");
 
+    // No transition on first open — just show the image
     image.src = galleryImages[currentImageIndex];
+    image.style.transform = "";
+    image.style.opacity = "1";
     lightbox.style.display = "flex";
 
     updateCounter();
@@ -27,34 +31,83 @@ function closeLightbox() {
         document.exitFullscreen();
     }
     document.getElementById("lightbox").style.display = "none";
+    isTransitioning = false;
 }
 
 function showNextImage() {
-    currentImageIndex =
-        (currentImageIndex + 1) % galleryImages.length;
-    updateLightboxImage();
+    const nextIndex = (currentImageIndex + 1) % galleryImages.length;
+    slideToImage(nextIndex, "next");
 }
 
 function showPrevImage() {
-    currentImageIndex =
-        (currentImageIndex - 1 + galleryImages.length) %
-        galleryImages.length;
-    updateLightboxImage();
+    const prevIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+    slideToImage(prevIndex, "prev");
 }
 
-function updateLightboxImage() {
-    const img = document.getElementById("lightbox-image");
-    img.src = galleryImages[currentImageIndex];
+function slideToImage(newIndex, direction) {
+    if (isTransitioning || newIndex === currentImageIndex) return;
+    isTransitioning = true;
 
-    // Reset zoom and scroll
-    //zoomLevel = 1;
-    //scrollOffset = 0;
-    applyTransform(img);
+    const current = document.getElementById("lightbox-image");
+    const incoming = document.getElementById("lightbox-image-incoming");
 
+    // Reset zoom and scroll for the transition
+    // zoomLevel = 1;
+    // scrollOffset = 0;
+
+    // Position incoming image off-screen in the correct direction
+    const startX = direction === "next" ? "100%" : "-100%";
+    const exitX = direction === "next" ? "-100%" : "100%";
+
+    incoming.src = galleryImages[newIndex];
+    incoming.style.transition = "none";
+    incoming.style.transform = `translateX(${startX})`;
+    incoming.style.opacity = "1";
+
+    // Force reflow so the initial position is applied before animating
+    incoming.getBoundingClientRect();
+
+    // Animate both images simultaneously
+    const duration = "300ms";
+    const easing = "ease";
+
+    current.style.transition = `transform ${duration} ${easing}, opacity ${duration} ${easing}`;
+    incoming.style.transition = `transform ${duration} ${easing}, opacity ${duration} ${easing}`;
+
+    current.style.transform = `translateX(${exitX})`;
+    current.style.opacity = "0";
+    incoming.style.transform = "translateX(0)";
+    incoming.style.opacity = "1";
+
+    incoming.addEventListener("transitionend", function onEnd() {
+        incoming.removeEventListener("transitionend", onEnd);
+
+        // Swap — make incoming the new current
+        current.src = galleryImages[newIndex];
+        current.style.transition = "none";
+        current.style.transform = `translateY(${scrollOffset}px) scale(${zoomLevel})`;
+        current.style.opacity = "1";
+
+        // Reset incoming back off-screen ready for next transition
+        incoming.style.transition = "none";
+        incoming.style.transform = "translateX(100%)";
+        incoming.style.opacity = "0";
+        incoming.src = "";
+
+        currentImageIndex = newIndex;
+        isTransitioning = false;
+
+        updateCounter();
+        updateDownloadLink();
+        updateActiveThumbnail();
+        preloadAdjacentImages();
+    }, { once: true });
+
+    // Update index immediately for counter/download during transition
+    currentImageIndex = newIndex;
     updateCounter();
     updateDownloadLink();
     updateActiveThumbnail();
-    preloadAdjacentImages();
 }
 
 function applyTransform(img) {
@@ -143,8 +196,8 @@ function buildThumbnails() {
         thumb.className = "lightbox-thumb";
         thumb.addEventListener("click", (e) => {
             e.stopPropagation();
-            currentImageIndex = index;
-            updateLightboxImage();
+            const direction = index > currentImageIndex ? "next" : "prev";
+            slideToImage(index, direction);
         });
         strip.appendChild(thumb);
     });
@@ -169,6 +222,13 @@ function updateActiveThumbnail() {
 document.addEventListener("DOMContentLoaded", () => {
 
     const img = document.getElementById("lightbox-image");
+    const incoming = document.getElementById("lightbox-image-incoming");
+
+    // Set incoming image off-screen initially
+    if (incoming) {
+        incoming.style.transform = "translateX(100%)";
+        incoming.style.opacity = "0";
+    }
 
     const galleryEls = Array.from(document.querySelectorAll(".gallery-image"));
 
