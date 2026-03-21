@@ -10,7 +10,7 @@ SETS_DIR = os.path.join(app.static_folder, "sets")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 ART_SECTION = True          # Set to False to hide the art section entirely from the UI
-LIGHTBOX_THUMBNAILS = False # Set to False to hide the thumbnail strip at the bottom of the lightbox
+LIGHTBOX_THUMBNAILS = True  # Set to False to hide the thumbnail strip at the bottom of the lightbox
 
 def normalize_name(value):
     value = value.strip()
