@@ -122,12 +122,15 @@ def archive():
     if ART_SECTION:
         all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
 
-    if sort == "title":
-        all_sets.sort(key=lambda image_set: image_set["title"].lower())
-    elif sort == "images":
+    if sort == "images":
         all_sets.sort(key=lambda image_set: image_set["image_count"], reverse=True)
     elif sort == "random":
         random.shuffle(all_sets)
+    elif sort == "recent":
+        all_sets.sort(key=lambda image_set: image_set["mtime"], reverse=True)
+    else:
+        # Default: folder number descending
+        all_sets.sort(key=lambda image_set: int(image_set["slug"]), reverse=True)
 
     return render_template(
         "archive.html",

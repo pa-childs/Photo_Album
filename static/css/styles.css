@@ -69,6 +69,17 @@ a:hover {
     margin-top: 10px;
 }
 
+.sort-active {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 2px solid #344e41;
+    background-color: #CFD6C2;
+    color: #344e41;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
 /* Back to top button */
 #back-to-top {
     position: fixed;
@@ -140,7 +151,7 @@ button:hover {
 
 .gallery-image {
     width: 100%;
-    height: 300px;
+    height: 250px;
     object-fit: cover;
     object-position: center top;
     display: block;

@@ -26,9 +26,10 @@
     {% if mode != "art" %}
         <div class="archive-sort-links">
             Sort:
-            <a href="{{ url_for('archive') }}">Most Recent</a> |
-            <a href="{{ url_for('archive', sort='images') }}">Image Count</a> |
-            <a href="{{ url_for('archive', sort='random') }}">Random</a>
+            <a href="{{ url_for('archive') }}" {% if not current_sort %}class="sort-active"{% endif %}>Collections</a> |
+            <a href="{{ url_for('archive', sort='recent') }}" {% if current_sort == 'recent' %}class="sort-active"{% endif %}>Recent Updates</a> |
+            <a href="{{ url_for('archive', sort='images') }}" {% if current_sort == 'images' %}class="sort-active"{% endif %}>Image Counts</a> |
+            <a href="{{ url_for('archive', sort='random') }}" {% if current_sort == 'random' %}class="sort-active"{% endif %}>Random</a>
         </div>
     {% endif %}
 
