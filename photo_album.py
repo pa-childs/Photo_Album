@@ -189,8 +189,6 @@ def load_all_sets():
             "issue": meta.get("issue", None)
         })
 
-    all_sets.sort(key=lambda image_set: image_set["mtime"], reverse=True)
-
     return all_sets
 
 @app.route("/people")
@@ -326,7 +324,7 @@ def view_tag(tag_name):
         if tag_name in image_set["tags"]
     ]
 
-    filtered.sort(key=lambda image_set: (image_set["series"] or "", image_set["issue"] or 0))
+    filtered.sort(key=lambda image_set: int(image_set["slug"]), reverse=True)
 
     return render_template(
         "archive.html",
@@ -343,6 +341,8 @@ def view_person(person_name):
         image_set for image_set in all_sets
         if person_name in image_set["people"]
     ]
+
+    filtered.sort(key=lambda image_set: int(image_set["slug"]), reverse=True)
 
     return render_template(
         "archive.html",
