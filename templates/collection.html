@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ collection.title }}</h1>
+
+{% if images %}
+    <div class="images-grid">
+        {% for image in images %}
+            <img
+                src="{{ url_for('static', filename=image.thumb_400) }}"
+                data-src="{{ url_for('static', filename=image.src) }}"
+                {% if lightbox_thumbnails %}
+                    data-thumb="{{ url_for('static', filename=image.thumb_150) }}"
+                {% endif %}
+                loading="lazy"
+                class="gallery-image"
+                data-index="{{ loop.index0 }}"
+                data-image="{{ image.image }}"
+                data-set="{{ image.set }}"
+                onclick="openLightbox({{ loop.index0 }})"
+            >
+        {% endfor %}
+    </div>
+{% else %}
+    <p>This collection has no images.</p>
+{% endif %}
+
+<!-- Context menu -->
+<div id="collection-context-menu" class="context-menu" style="display:none;">
+    <div class="context-menu-title">Collection</div>
+    <div id="context-menu-items"></div>
+</div>
+
+<div id="lightbox" class="lightbox" style="display: none;">
+    <span class="lightbox-close">&times;</span>
+
+    <!-- Top bar: counter, fullscreen, download -->
+    <div class="lightbox-toolbar">
+        <span id="lightbox-counter" class="lightbox-counter"></span>
+        <button id="lightbox-fullscreen" class="lightbox-toolbar-btn" title="Fullscreen">&#x26F6;</button>
+        <a id="lightbox-download" class="lightbox-toolbar-btn" title="Download" download>&#8659;</a>
+    </div>
+
+    <!-- Scrollable image area - holds both current and incoming image for slide transition -->
+    <div class="lightbox-image-area">
+        <img id="lightbox-image" src="" alt="">
+        <img id="lightbox-image-incoming" src="" alt="">
+    </div>
+
+    <div class="lightbox-nav lightbox-prev">&#10094;</div>
+    <div class="lightbox-nav lightbox-next">&#10095;</div>
+
+    {% if lightbox_thumbnails %}
+        <!-- Thumbnail strip -->
+        <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
+    {% endif %}
+</div>
+
+<!-- Embed collection data for JS -->
+<script>
+    const ALL_COLLECTIONS = [];
+    const IMAGE_COLLECTIONS = {};
+    const CURRENT_COLLECTION = "{{ collection.folder }}";
+</script>
+
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+
+{% endblock %}

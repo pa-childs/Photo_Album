@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Collections</h1>
+
+{% if collections %}
+    <div class="sets-grid">
+        {% for collection in collections %}
+            <a href="{{ url_for('view_collection', folder=collection.folder) }}" class="set-card">
+                {% if collection.cover_url %}
+                    <div class="set-image">
+                        <img src="{{ url_for('static', filename=collection.cover_url) }}" loading="lazy">
+                    </div>
+                {% else %}
+                    <div class="set-image collection-no-cover">
+                        <span>No Cover</span>
+                    </div>
+                {% endif %}
+                <div class="set-info">
+                    <div class="set-info-header">
+                        <h2>{{ collection.title }}</h2>
+                        <div class="image-count-badge">
+                            {{ collection.image_count }} Images
+                        </div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No collections yet. Right-click any image in a set to add it to a collection.</p>
+{% endif %}
+
+{% endblock %}

@@ -74,9 +74,17 @@
             loading="lazy"
             class="gallery-image"
             data-index="{{ loop.index0 }}"
+            data-image="{{ image }}"
+            data-set="{{ set.slug }}"
             onclick="openLightbox({{ loop.index0 }})"
         >
     {% endfor %}
+</div>
+
+<!-- Context menu -->
+<div id="collection-context-menu" class="context-menu" style="display:none;">
+    <div class="context-menu-title">Add to Collection</div>
+    <div id="context-menu-items"></div>
 </div>
 
 <div id="lightbox" class="lightbox" style="display: none;">
@@ -103,6 +111,13 @@
         <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
     {% endif %}
 </div>
+
+<!-- Embed collection data for JS -->
+<script>
+    const ALL_COLLECTIONS = {{ all_collections | tojson }};
+    const IMAGE_COLLECTIONS = {{ image_collections | tojson }};
+    const CURRENT_COLLECTION = null;
+</script>
 
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 

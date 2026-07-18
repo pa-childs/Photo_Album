@@ -1,6 +1,8 @@
-# Ignore everything inside images/sets/ but keep the directory itself
+# Ignore everything inside static/sets/ and static/collections but keep the directory itself
 static/sets/*
+static/collections/*
 !sets/.gitkeep
+!collections/.gitkeep
 
 .idea/
 

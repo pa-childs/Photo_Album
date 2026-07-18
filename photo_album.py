@@ -1,12 +1,13 @@
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, jsonify
 from collections import defaultdict
 
-import argparse, json, os, random
+import argparse, json, os, random, re
 
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETS_DIR = os.path.join(app.static_folder, "sets")
+COLLECTIONS_DIR = os.path.join(app.static_folder, "collections")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 ART_SECTION = True          # Set to False to hide the art section entirely from the UI
@@ -24,6 +25,68 @@ def normalize_name(value):
 
     # Otherwise convert to title case
     return value.title()
+
+def slugify(value):
+    value = value.strip().lower()
+    value = re.sub(r'[^\w\s-]', '', value)
+    value = re.sub(r'[\s_]+', '-', value)
+    value = re.sub(r'-+', '-', value)
+    return value.strip('-')
+
+def load_all_collections():
+    all_collections = []
+
+    if not os.path.exists(COLLECTIONS_DIR):
+        return all_collections
+
+    for folder in os.listdir(COLLECTIONS_DIR):
+        collection_path = os.path.join(COLLECTIONS_DIR, folder)
+
+        if not os.path.isdir(collection_path):
+            continue
+
+        json_path = os.path.join(collection_path, "collection.json")
+        if not os.path.exists(json_path):
+            continue
+
+        with open(json_path) as f:
+            data = json.load(f)
+
+        # Resolve cover image URL if set
+        cover_url = None
+        cover = data.get("cover")
+        if cover and isinstance(cover, dict):
+            cover_set = cover.get("set")
+            cover_image = cover.get("image")
+            if cover_set and cover_image:
+                basename = cover_image.rsplit('.', 1)[0]
+                cover_url = f"sets/{cover_set}/thumbnails/{basename}_thumb_400.jpg"
+
+        all_collections.append({
+            "folder": folder,
+            "slug": data.get("slug", folder),
+            "title": data.get("title", folder),
+            "images": data.get("images", []),
+            "image_count": len(data.get("images", [])),
+            "cover_url": cover_url,
+            "cover": cover
+        })
+
+    all_collections.sort(key=lambda c: c["title"].lower())
+
+    return all_collections
+
+def get_next_collection_folder():
+    if not os.path.exists(COLLECTIONS_DIR):
+        os.makedirs(COLLECTIONS_DIR)
+        return "10000"
+
+    existing = [
+        int(f) for f in os.listdir(COLLECTIONS_DIR)
+        if os.path.isdir(os.path.join(COLLECTIONS_DIR, f)) and f.isdigit()
+    ]
+
+    return str(max(existing) + 1) if existing else "10000"
 
 @app.route("/set/<slug>/add-person", methods=["POST"])
 def add_person(slug):
@@ -118,7 +181,6 @@ def archive():
         )
 
     # Photo mode (default)
-    # When art section is disabled, show all types rather than hiding art sets
     if ART_SECTION:
         all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
 
@@ -140,6 +202,139 @@ def archive():
         current_sort=sort,
         art_section=ART_SECTION
     )
+
+@app.route("/collections")
+def collections_index():
+    all_collections = load_all_collections()
+
+    return render_template(
+        "collections.html",
+        collections=all_collections
+    )
+
+@app.route("/collection/<folder>")
+def view_collection(folder):
+    all_collections = load_all_collections()
+    collection = next((c for c in all_collections if c["folder"] == folder), None)
+
+    if not collection:
+        return "Collection not found", 404
+
+    # Build full image data for each referenced image
+    images = []
+    for ref in collection["images"]:
+        set_slug = ref.get("set")
+        image_file = ref.get("image")
+        if set_slug and image_file:
+            basename = image_file.rsplit('.', 1)[0]
+            images.append({
+                "set": set_slug,
+                "image": image_file,
+                "src": f"sets/{set_slug}/{image_file}",
+                "thumb_400": f"sets/{set_slug}/thumbnails/{basename}_thumb_400.jpg",
+                "thumb_150": f"sets/{set_slug}/thumbnails/{basename}_thumb_150.jpg",
+            })
+
+    return render_template(
+        "collection.html",
+        collection=collection,
+        images=images,
+        lightbox_thumbnails=LIGHTBOX_THUMBNAILS
+    )
+
+@app.route("/collection/add-image", methods=["POST"])
+def collection_add_image():
+    data = request.get_json()
+    collection_folder = data.get("collection_folder")
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not all([collection_folder, set_slug, image]):
+        return jsonify({"error": "Missing data"}), 400
+
+    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
+
+    if not os.path.exists(json_path):
+        return jsonify({"error": "Collection not found"}), 404
+
+    with open(json_path, "r") as f:
+        col_data = json.load(f)
+
+    already_exists = any(
+        r.get("set") == set_slug and r.get("image") == image
+        for r in col_data.get("images", [])
+    )
+
+    if not already_exists:
+        col_data.setdefault("images", []).append({"set": set_slug, "image": image})
+
+        with open(json_path, "w") as f:
+            json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True})
+
+@app.route("/collection/remove-image", methods=["POST"])
+def collection_remove_image():
+    data = request.get_json()
+    collection_folder = data.get("collection_folder")
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not all([collection_folder, set_slug, image]):
+        return jsonify({"error": "Missing data"}), 400
+
+    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
+
+    if not os.path.exists(json_path):
+        return jsonify({"error": "Collection not found"}), 404
+
+    with open(json_path, "r") as f:
+        col_data = json.load(f)
+
+    col_data["images"] = [
+        r for r in col_data.get("images", [])
+        if not (r.get("set") == set_slug and r.get("image") == image)
+    ]
+
+    # Delete collection entirely if no images remain
+    if not col_data["images"]:
+        folder_path = os.path.join(COLLECTIONS_DIR, collection_folder)
+        os.remove(json_path)
+        os.rmdir(folder_path)
+        return jsonify({"success": True, "deleted": True})
+
+    with open(json_path, "w") as f:
+        json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True, "deleted": False})
+
+@app.route("/collection/create", methods=["POST"])
+def collection_create():
+    data = request.get_json()
+    title = data.get("title", "").strip()
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not title or not set_slug or not image:
+        return jsonify({"error": "Missing data"}), 400
+
+    slug = slugify(title)
+    folder = get_next_collection_folder()
+    folder_path = os.path.join(COLLECTIONS_DIR, folder)
+    os.makedirs(folder_path)
+
+    col_data = {
+        "title": title,
+        "slug": slug,
+        "cover": {"set": set_slug, "image": image},
+        "images": [{"set": set_slug, "image": image}]
+    }
+
+    json_path = os.path.join(folder_path, "collection.json")
+    with open(json_path, "w") as f:
+        json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True, "folder": folder, "title": title})
 
 def load_all_sets():
     all_sets = []
@@ -309,10 +504,23 @@ def view_set(slug):
     if not image_set:
         return "Set not found", 404
 
+    # Pass collection folders each image belongs to, for the right-click menu
+    all_collections = load_all_collections()
+    image_collections = {}
+    for collection in all_collections:
+        for ref in collection["images"]:
+            if ref.get("set") == slug:
+                key = ref.get("image")
+                if key not in image_collections:
+                    image_collections[key] = []
+                image_collections[key].append(collection["folder"])
+
     return render_template(
         "set.html",
         set=image_set,
-        lightbox_thumbnails=LIGHTBOX_THUMBNAILS
+        lightbox_thumbnails=LIGHTBOX_THUMBNAILS,
+        all_collections=all_collections,
+        image_collections=image_collections
     )
 
 @app.route("/tag/<tag_name>")

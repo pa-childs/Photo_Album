@@ -219,6 +219,269 @@ function updateActiveThumbnail() {
     }
 }
 
+// ─── Collection context menu ───────────────────────────────────────────────
+
+let imageCollections = {};
+let allCollections = [];
+let currentCollection = null; // Folder number when on a collection page
+
+function initCollections() {
+    if (typeof IMAGE_COLLECTIONS !== "undefined") {
+        imageCollections = JSON.parse(JSON.stringify(IMAGE_COLLECTIONS));
+    }
+    if (typeof ALL_COLLECTIONS !== "undefined") {
+        allCollections = JSON.parse(JSON.stringify(ALL_COLLECTIONS));
+    }
+    if (typeof CURRENT_COLLECTION !== "undefined") {
+        currentCollection = CURRENT_COLLECTION;
+    }
+}
+
+function showContextMenu(e, imageEl) {
+    e.preventDefault();
+
+    const menu = document.getElementById("collection-context-menu");
+    const itemsContainer = document.getElementById("context-menu-items");
+    const imageFile = imageEl.dataset.image;
+    const setSlug = imageEl.dataset.set;
+
+    itemsContainer.innerHTML = "";
+
+    if (currentCollection) {
+        // On a collection page — Go to Gallery first, then Remove
+
+        const galleryItem = document.createElement("div");
+        galleryItem.className = "context-menu-item";
+        const galleryCheck = document.createElement("span");
+        galleryCheck.className = "context-menu-check";
+        galleryCheck.textContent = "";
+        const galleryLabel = document.createElement("span");
+        galleryLabel.textContent = "Go to Gallery";
+        galleryItem.appendChild(galleryCheck);
+        galleryItem.appendChild(galleryLabel);
+        galleryItem.addEventListener("click", () => {
+            hideContextMenu();
+            window.location.href = `/set/${setSlug}`;
+        });
+        itemsContainer.appendChild(galleryItem);
+
+        const removeItem = document.createElement("div");
+        removeItem.className = "context-menu-item";
+        const removeCheck = document.createElement("span");
+        removeCheck.className = "context-menu-check";
+        removeCheck.textContent = "";
+        const removeLabel = document.createElement("span");
+        removeLabel.textContent = "Remove from Collection";
+        removeItem.appendChild(removeCheck);
+        removeItem.appendChild(removeLabel);
+        removeItem.addEventListener("click", async () => {
+            hideContextMenu();
+            await removeFromCollection(currentCollection, setSlug, imageFile);
+
+            // Remove the image element from the grid immediately
+            const imageEl2 = document.querySelector(
+                `.gallery-image[data-image="${imageFile}"][data-set="${setSlug}"]`
+            );
+            if (imageEl2) {
+                imageEl2.remove();
+                const remaining = Array.from(document.querySelectorAll(".gallery-image"));
+                galleryImages = remaining.map(el => el.dataset.src);
+                galleryThumbs = remaining.map(el => el.dataset.thumb);
+                buildThumbnails();
+            }
+        });
+        itemsContainer.appendChild(removeItem);
+
+    } else {
+        // On a set page — full add/remove/create menu
+        const memberOf = imageCollections[imageFile] || [];
+        const inCollections = allCollections.filter(c => memberOf.includes(c.folder));
+        const notInCollections = allCollections.filter(c => !memberOf.includes(c.folder));
+
+        const renderItem = (collection, isMember) => {
+            const item = document.createElement("div");
+            item.className = "context-menu-item" + (isMember ? " in-collection" : "");
+
+            const check = document.createElement("span");
+            check.className = "context-menu-check";
+            check.textContent = isMember ? "✓" : "";
+
+            const label = document.createElement("span");
+            label.textContent = collection.title;
+
+            item.appendChild(check);
+            item.appendChild(label);
+
+            item.addEventListener("click", () => {
+                if (isMember) {
+                    removeFromCollection(collection.folder, setSlug, imageFile);
+                } else {
+                    addToCollection(collection.folder, setSlug, imageFile);
+                }
+                hideContextMenu();
+            });
+
+            itemsContainer.appendChild(item);
+        };
+
+        inCollections.forEach(c => renderItem(c, true));
+        notInCollections.forEach(c => renderItem(c, false));
+
+        if (allCollections.length > 0) {
+            const divider = document.createElement("hr");
+            divider.className = "context-menu-divider";
+            itemsContainer.appendChild(divider);
+        }
+
+        const newItem = document.createElement("div");
+        newItem.className = "context-menu-new";
+        newItem.innerHTML = '<span class="context-menu-check">+</span><span>New Collection...</span>';
+        newItem.addEventListener("click", () => showNewCollectionInput(imageFile, setSlug));
+        itemsContainer.appendChild(newItem);
+    }
+
+    // Position the menu near the cursor, keeping it within viewport
+    menu.style.display = "block";
+    const menuWidth = menu.offsetWidth;
+    const menuHeight = menu.offsetHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let x = e.clientX;
+    let y = e.clientY;
+
+    if (x + menuWidth > viewportWidth) x = viewportWidth - menuWidth - 8;
+    if (y + menuHeight > viewportHeight) y = viewportHeight - menuHeight - 8;
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+}
+
+function hideContextMenu() {
+    const menu = document.getElementById("collection-context-menu");
+    if (menu) menu.style.display = "none";
+}
+
+function showNewCollectionInput(imageFile, setSlug) {
+    const itemsContainer = document.getElementById("context-menu-items");
+
+    const newItem = itemsContainer.querySelector(".context-menu-new");
+    if (!newItem) return;
+
+    const row = document.createElement("div");
+    row.className = "context-menu-input-row";
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Collection name";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "Save";
+
+    const doSave = () => {
+        const title = input.value.trim();
+        if (!title) return;
+        createCollection(title, setSlug, imageFile);
+        hideContextMenu();
+    };
+
+    saveBtn.addEventListener("click", doSave);
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") doSave();
+        if (e.key === "Escape") hideContextMenu();
+    });
+
+    row.appendChild(input);
+    row.appendChild(saveBtn);
+    newItem.replaceWith(row);
+
+    setTimeout(() => input.focus(), 50);
+}
+
+async function addToCollection(collectionFolder, setSlug, imageFile) {
+    try {
+        const res = await fetch("/collection/add-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                collection_folder: collectionFolder,
+                set: setSlug,
+                image: imageFile
+            })
+        });
+
+        if (res.ok) {
+            if (!imageCollections[imageFile]) imageCollections[imageFile] = [];
+            if (!imageCollections[imageFile].includes(collectionFolder)) {
+                imageCollections[imageFile].push(collectionFolder);
+            }
+        }
+    } catch (err) {
+        console.error("Failed to add to collection:", err);
+    }
+}
+
+async function removeFromCollection(collectionFolder, setSlug, imageFile) {
+    try {
+        const res = await fetch("/collection/remove-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                collection_folder: collectionFolder,
+                set: setSlug,
+                image: imageFile
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+
+            if (imageCollections[imageFile]) {
+                imageCollections[imageFile] = imageCollections[imageFile].filter(
+                    f => f !== collectionFolder
+                );
+            }
+
+            if (data.deleted) {
+                allCollections = allCollections.filter(c => c.folder !== collectionFolder);
+            }
+        }
+    } catch (err) {
+        console.error("Failed to remove from collection:", err);
+    }
+}
+
+async function createCollection(title, setSlug, imageFile) {
+    try {
+        const res = await fetch("/collection/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: title,
+                set: setSlug,
+                image: imageFile
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+
+            allCollections.push({ folder: data.folder, title: data.title });
+            allCollections.sort((a, b) => a.title.localeCompare(b.title));
+
+            if (!imageCollections[imageFile]) imageCollections[imageFile] = [];
+            imageCollections[imageFile].push(data.folder);
+        } else {
+            const data = await res.json();
+            console.error("Failed to create collection:", data.error);
+        }
+    } catch (err) {
+        console.error("Failed to create collection:", err);
+    }
+}
+
+// ─── DOMContentLoaded ──────────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const img = document.getElementById("lightbox-image");
@@ -240,6 +503,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Build thumbnail strip once on load
     buildThumbnails();
+
+    // Initialise collection data from embedded Jinja variables
+    initCollections();
+
+    // Right-click context menu — on both set and collection pages
+    if (document.getElementById("collection-context-menu")) {
+        galleryEls.forEach(imageEl => {
+            imageEl.addEventListener("contextmenu", (e) => {
+                showContextMenu(e, imageEl);
+            });
+        });
+
+        // Hide context menu on click outside or scroll
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("collection-context-menu");
+            if (menu && !menu.contains(e.target)) {
+                hideContextMenu();
+            }
+        });
+
+        document.addEventListener("scroll", hideContextMenu);
+
+        // Prevent clicks inside the menu from bubbling to the document listener
+        const contextMenu = document.getElementById("collection-context-menu");
+        if (contextMenu) {
+            contextMenu.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        }
+    }
 
     if (img) {
         // Lightbox close button
