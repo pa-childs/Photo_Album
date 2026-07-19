@@ -69,7 +69,8 @@ def load_all_collections():
             "images": data.get("images", []),
             "image_count": len(data.get("images", [])),
             "cover_url": cover_url,
-            "cover": cover
+            "cover": cover,
+            "mtime": os.path.getmtime(collection_path)
         })
 
     all_collections.sort(key=lambda c: c["title"].lower())
@@ -206,10 +207,22 @@ def archive():
 @app.route("/collections")
 def collections_index():
     all_collections = load_all_collections()
+    sort = request.args.get("sort")
+
+    if sort == "images":
+        all_collections.sort(key=lambda c: c["image_count"], reverse=True)
+    elif sort == "random":
+        random.shuffle(all_collections)
+    elif sort == "recent":
+        all_collections.sort(key=lambda c: c["mtime"], reverse=True)
+    else:
+        # Default: alphabetical
+        all_collections.sort(key=lambda c: c["title"].lower())
 
     return render_template(
         "collections.html",
-        collections=all_collections
+        collections=all_collections,
+        current_sort=sort
     )
 
 @app.route("/collection/<folder>")
@@ -520,8 +533,7 @@ def view_set(slug):
         set=image_set,
         lightbox_thumbnails=LIGHTBOX_THUMBNAILS,
         all_collections=all_collections,
-        image_collections=image_collections,
-        show_collections=image_set["type"] == "photo"
+        image_collections=image_collections
     )
 
 @app.route("/tag/<tag_name>")

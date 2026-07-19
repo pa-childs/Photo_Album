@@ -10,6 +10,14 @@
         </div>
     </div>
 
+    <div class="archive-sort-links">
+        Sort:
+        <a href="{{ url_for('collections_index') }}" {% if not current_sort %}class="sort-active"{% endif %}>Alphabetical</a> |
+        <a href="{{ url_for('collections_index', sort='recent') }}" {% if current_sort == 'recent' %}class="sort-active"{% endif %}>Recent Updates</a> |
+        <a href="{{ url_for('collections_index', sort='images') }}" {% if current_sort == 'images' %}class="sort-active"{% endif %}>Image Count</a> |
+        <a href="{{ url_for('collections_index', sort='random') }}" {% if current_sort == 'random' %}class="sort-active"{% endif %}>Random</a>
+    </div>
+
     <hr>
 
     <div class="sets-grid" id="collections-grid">
