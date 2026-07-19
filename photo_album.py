@@ -520,7 +520,8 @@ def view_set(slug):
         set=image_set,
         lightbox_thumbnails=LIGHTBOX_THUMBNAILS,
         all_collections=all_collections,
-        image_collections=image_collections
+        image_collections=image_collections,
+        show_collections=image_set["type"] == "photo"
     )
 
 @app.route("/tag/<tag_name>")

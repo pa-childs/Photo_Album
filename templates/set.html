@@ -81,11 +81,13 @@
     {% endfor %}
 </div>
 
+{% if show_collections %}
 <!-- Context menu -->
 <div id="collection-context-menu" class="context-menu" style="display:none;">
     <div class="context-menu-title">Add to Collection</div>
     <div id="context-menu-items"></div>
 </div>
+{% endif %}
 
 <div id="lightbox" class="lightbox" style="display: none;">
     <span class="lightbox-close">&times;</span>
@@ -113,11 +115,13 @@
 </div>
 
 <!-- Embed collection data for JS -->
+{% if show_collections %}
 <script>
     const ALL_COLLECTIONS = {{ all_collections | tojson }};
     const IMAGE_COLLECTIONS = {{ image_collections | tojson }};
     const CURRENT_COLLECTION = null;
 </script>
+{% endif %}
 
 <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 
