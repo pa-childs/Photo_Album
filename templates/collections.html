@@ -2,12 +2,19 @@
 
 {% block content %}
 
-<h1>Collections</h1>
-
 {% if collections %}
-    <div class="sets-grid">
+    <div class="archive-sort">
+        <div class="archive-filter-box">
+            <label for="collection-search">Search:</label>
+            <input type="text" id="collection-search">
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="sets-grid" id="collections-grid">
         {% for collection in collections %}
-            <a href="{{ url_for('view_collection', folder=collection.folder) }}" class="set-card">
+            <a href="{{ url_for('view_collection', folder=collection.folder) }}" class="set-card" data-title="{{ collection.title | lower }}">
                 {% if collection.cover_url %}
                     <div class="set-image">
                         <img src="{{ url_for('static', filename=collection.cover_url) }}" loading="lazy">
@@ -28,6 +35,24 @@
             </a>
         {% endfor %}
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("collection-search");
+        if (!searchInput) return;
+
+        searchInput.addEventListener("input", function () {
+            const searchTerm = searchInput.value.toLowerCase();
+            const cards = document.querySelectorAll("#collections-grid .set-card");
+
+            cards.forEach(function (card) {
+                const title = card.dataset.title || "";
+                card.style.display = title.includes(searchTerm) ? "" : "none";
+            });
+        });
+    });
+    </script>
+
 {% else %}
     <p>No collections yet. Right-click any image in a set to add it to a collection.</p>
 {% endif %}
