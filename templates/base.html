@@ -12,10 +12,10 @@
     </h1>
 
     <nav>
-        <a href="/">Archive</a>
-        <a href="{{ url_for('collections_index') }}">Collections</a>
-        <a href="{{ url_for('tags_index') }}">Tags</a>
-        <a href="{{ url_for('people_index') }}">People</a>
+        <a href="/" class="{% if request.endpoint in ['archive', 'view_set', 'view_tag', 'view_person'] %}nav-active{% endif %}">Archive</a>
+        <a href="{{ url_for('collections_index') }}" class="{% if request.endpoint in ['collections_index', 'view_collection'] %}nav-active{% endif %}">Collections</a>
+        <a href="{{ url_for('tags_index') }}" class="{% if request.endpoint == 'tags_index' %}nav-active{% endif %}">Tags</a>
+        <a href="{{ url_for('people_index') }}" class="{% if request.endpoint == 'people_index' %}nav-active{% endif %}">People</a>
     </nav>
 
     <hr>

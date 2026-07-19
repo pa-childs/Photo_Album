@@ -720,3 +720,10 @@ hr {
     padding: 4px 8px;
     font-size: 0.85rem;
 }
+
+.nav-active {
+    background-color: #344e41;
+    color: #dad7cd;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
