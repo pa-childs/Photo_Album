@@ -20,11 +20,11 @@ Image Collections on the Photo Archive page:
 If Art section is used (enabled with ART_SECTION = True)
   * The Art section can be used for a separate display collections of Art, Comics, Drawings, ect.
   * A drop-down appears that allows the user to switch between the two sections.
-  * The Art section lists all series of images as separate collections.
-  * Can be filtered by the Series name or the Collection name.
+  * The Art section lists all series of images as separate image sets.
+  * Can be filtered by the Series name or the Set name.
 
 **Image Set Meta Files:**  
-Each photo collection has a meta.json file which contains:
+Each photo set has a meta.json file which contains:
   * Title
   * People
   * Tags
@@ -34,15 +34,19 @@ If the Art section option is used, those images will need to contain additional 
   * Type
   * Series
   * Issue
+  
+**Collections**
+Images in the various galleries can be placed in/removed from Collections by right-clicking the images and adding them 
+to existing Collections or by creating new ones. Empty collections are deleted.
 
 **Image Tagging:**  
-Image collections can be tagged in on of two ways:
+Image Sets can be tagged in on of two ways:
   * By Tags that describe the image.
   * By People that are in the image.
   * Tags/People can be removed as well.
-  * There are separate pages where existing Tags/People are listed. Clicking on links there will load just image 
-  collections that have those Tags/People.
-  * Each image collection page will list all Tags/People as links, allowing one to click the links to find related 
+  * There are separate pages where existing Tags/People are listed. Clicking on links on those pages loads all images
+  that share the Tag.
+  * Each image set page will list all Tags/People as links, allowing one to click the links to find related 
   images.
 
 **Lightbox:**  
