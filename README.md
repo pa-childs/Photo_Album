@@ -2,18 +2,38 @@
 
 Photo Album Web Application (Python Flask app)
 
-Allows the user to place collections of images within that web application's static/sets directory. All image 
-collections can be viewed by clicking the collection image/link. When the collection loads all the contained images 
+Allows the user to set up image galleries within the web application's static/sets directory. All image 
+galleries can be viewed by clicking the gallery's cover image. When the gallery loads all the galleries images 
 are displayed.
 
 **Python Packages**
   * Flask
+  * Flask-Login
+  * Flask-Bcrypt
   * Jinja2
+  * Python-dotenv
+
+**Application Settings**
+The following settings are set within the applications config.env file
+SECRET_KEY = [set this with a long random string]
+REQUIRE_LOGIN = True        # Set to False to disable authentication entirely
+ART_SECTION = True          # Set to False to hide the art section entirely from the UI
+LIGHTBOX_THUMBNAILS = True  # Set to False to hide the thumbnail strip at the bottom of the lightbox
+
+**Login Setup**
+Currently if Login is used it is pretty basic. There are no individual profiles or image galleries tied to different 
+user ids at this time.
+
+If the login functionality is used, it just makes a person provide credentials so that they can view the contained 
+images.
+
+Users and their encrypted passwords are saved in a users.json file. This file is used to confirm a login and allow a
+user access. New users can be created using the create_user.py file for now.
 
 **Photo Archive:**  
 Image Collections on the Photo Archive page:
-  * Can be filtered by the Collection name.
-  * Can be sorted by Most Recent or Most Images.
+  * Can be filtered by the Collection Name, Person, or Tag.
+  * Can be sorted by Image Sets (Date Added), Recent Updates, Image Count,or Randomly.
   * Show set title, and image count.
 
 **Art Section (optional):**  
@@ -25,32 +45,32 @@ If Art section is used (enabled with ART_SECTION = True)
 
 **Image Set Meta Files:**  
 Each photo set has a meta.json file which contains:
-  * Title
-  * People
-  * Tags
-  * Cover
+  * Title - title of the gallery
+  * People - used to sort image galleries on the People page
+  * Tags - used to sort image galleries on the Tags page
+  * Cover - used to determine which image is used as a cover image for the gallery
 
 If the Art section option is used, those images will need to contain additional metadata:
-  * Type
-  * Series
-  * Issue
+  * Type - used to separate normal photo collections from art collections
+  * Series - used as the title for a collection of related art
+  * Issue - used to order art collections sequentially 
   
 **Collections**
-Images in the various galleries can be placed in/removed from Collections by right-clicking the images and adding them 
-to existing Collections or by creating new ones. Empty collections are deleted.
+Individual images from the various galleries can be added or removed from Collections by right-clicking the images and 
+adding them to existing Collections or by creating new Collections. Empty collections are deleted automatically.
 
 **Image Tagging:**  
-Image Sets can be tagged in on of two ways:
+Galleries can be tagged in one of two ways:
   * By Tags that describe the image.
   * By People that are in the image.
-  * Tags/People can be removed as well.
+  * Tags/People that have been added can be removed as needed.
   * There are separate pages where existing Tags/People are listed. Clicking on links on those pages loads all images
-  that share the Tag.
-  * Each image set page will list all Tags/People as links, allowing one to click the links to find related 
-  images.
+  that share the Tag/People designation.
+  * Each Gallery page will list all Tags/People as links, allowing one to click the links to find other similar or 
+  related images.
 
 **Lightbox:**  
-Images are shown in lightbox which has the ability to:
+Images are shown in a lightbox viewer which has the ability to:
   * User can cycle through pictures with arrows on screen or arrow keys on keyboard.
   * User can select picture to view from thumbnail image navigation (if enabled).
   * User can zoom with the mouse wheel when the CTRL key is pressed

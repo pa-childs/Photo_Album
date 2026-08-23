@@ -1,17 +1,91 @@
 from flask import Flask, redirect, render_template, request, url_for, jsonify
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 from collections import defaultdict
 
 import argparse, json, os, random, re
 
+load_dotenv("config.env")
+
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY")
+
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETS_DIR = os.path.join(app.static_folder, "sets")
 COLLECTIONS_DIR = os.path.join(app.static_folder, "collections")
+USERS_FILE = os.path.join(BASE_DIR, "users.json")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-ART_SECTION = True          # Set to False to hide the art section entirely from the UI
-LIGHTBOX_THUMBNAILS = True  # Set to False to hide the thumbnail strip at the bottom of the lightbox
+# Configuration settings set in config.env file to add/remove functionality. All settings default to True.
+# Set to False to disable authentication entirely
+REQUIRE_LOGIN = os.environ.get("REQUIRE_LOGIN", "True").lower() == "true"
+# Set to False to hide the art section entirely from the UI
+ART_SECTION = os.environ.get("ART_SECTION", "True").lower() == "true"
+# Set to False to hide the thumbnail strip at the bottom of the lightbox
+LIGHTBOX_THUMBNAILS = os.environ.get("LIGHTBOX_THUMBNAILS", "True").lower() == "true"
+
+# ─── Authentication ────────────────────────────────────────────────────────
+
+def conditional_login_required(f):
+    if REQUIRE_LOGIN:
+        return login_required(f)
+    return f
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    with open(USERS_FILE, "r") as f:
+        data = json.load(f)
+    return {u["username"]: u["password"] for u in data.get("users", [])}
+
+@login_manager.user_loader
+def user_loader(username):
+    users = load_users()
+    if username not in users:
+        return None
+    return User(username)
+
+@app.context_processor
+def inject_globals():
+    return {"require_login": REQUIRE_LOGIN}
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if not REQUIRE_LOGIN:
+        return redirect(url_for("archive"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        users = load_users()
+
+        if username in users and bcrypt.check_password_hash(users[username], password):
+            user = User(username)
+            login_user(user, remember=False)
+            next_page = request.args.get("next")
+            return redirect(next_page or url_for("archive"))
+
+        return render_template("login.html", error="Invalid username or password.")
+
+    return render_template("login.html", error=None)
+
+@app.route("/logout")
+@conditional_login_required
+def logout():
+    if REQUIRE_LOGIN:
+        logout_user()
+    return redirect(url_for("login"))
+
+# ─── Helpers ───────────────────────────────────────────────────────────────
 
 def normalize_name(value):
     value = value.strip()
@@ -52,7 +126,6 @@ def load_all_collections():
         with open(json_path) as f:
             data = json.load(f)
 
-        # Resolve cover image URL if set
         cover_url = None
         cover = data.get("cover")
         if cover and isinstance(cover, dict):
@@ -62,6 +135,8 @@ def load_all_collections():
                 basename = cover_image.rsplit('.', 1)[0]
                 cover_url = f"sets/{cover_set}/thumbnails/{basename}_thumb_400.jpg"
 
+        folder_mtime = os.path.getmtime(collection_path)
+
         all_collections.append({
             "folder": folder,
             "slug": data.get("slug", folder),
@@ -70,7 +145,7 @@ def load_all_collections():
             "image_count": len(data.get("images", [])),
             "cover_url": cover_url,
             "cover": cover,
-            "mtime": os.path.getmtime(collection_path)
+            "mtime": folder_mtime
         })
 
     all_collections.sort(key=lambda c: c["title"].lower())
@@ -88,266 +163,6 @@ def get_next_collection_folder():
     ]
 
     return str(max(existing) + 1) if existing else "10000"
-
-@app.route("/set/<slug>/add-person", methods=["POST"])
-def add_person(slug):
-    raw_person = request.form.get("new_person", "")
-    new_person = normalize_name(raw_person)
-
-    if not new_person:
-        return redirect(url_for("view_set", slug=slug))
-
-    all_sets = load_all_sets()
-
-    for image_set in all_sets:
-        if image_set["slug"] == slug:
-            existing_people_lower = [person.lower() for person in image_set["people"]]
-
-            if new_person.lower() not in existing_people_lower:
-                image_set["people"].append(new_person)
-
-                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
-
-                with open(meta_path, "r") as meta_file:
-                    meta = json.load(meta_file)
-
-                meta["people"] = image_set["people"]
-
-                with open(meta_path, "w") as meta_file:
-                    json.dump(meta, meta_file, indent=4)
-
-            break
-
-    return redirect(url_for("view_set", slug=slug))
-
-@app.route("/set/<slug>/add-tag", methods=["POST"])
-def add_tag(slug):
-    raw_tag = request.form.get("new_tag", "")
-    new_tag = normalize_name(raw_tag)
-
-    if not new_tag:
-        return redirect(url_for("view_set", slug=slug))
-
-    all_sets = load_all_sets()
-
-    for image_set in all_sets:
-        if image_set["slug"] == slug:
-            existing_tags_lower = [tag.lower() for tag in image_set["tags"]]
-
-            if new_tag.lower() not in existing_tags_lower:
-                image_set["tags"].append(new_tag)
-
-                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
-
-                with open(meta_path, "r") as meta_file:
-                    meta = json.load(meta_file)
-
-                meta["tags"] = image_set["tags"]
-
-                with open(meta_path, "w") as meta_file:
-                    json.dump(meta, meta_file, indent=4)
-
-            break
-
-    return redirect(url_for("view_set", slug=slug))
-
-@app.route("/")
-def archive():
-    all_sets = load_all_sets()
-    mode = request.args.get("mode", "photo")
-    sort = request.args.get("sort")
-
-    # If art section is disabled, force photo mode
-    if not ART_SECTION:
-        mode = "photo"
-
-    if mode == "art":
-        all_sets = [image_set for image_set in all_sets if image_set["type"] == "art"]
-
-        grouped_art = defaultdict(list)
-        for image_set in all_sets:
-            series_name = image_set["series"] or image_set["title"]
-            grouped_art[series_name].append(image_set)
-
-        for series in grouped_art.values():
-            series.sort(key=lambda image_set: image_set["issue"] or 0)
-
-        return render_template(
-            "archive.html",
-            sets=all_sets,
-            grouped_art=dict(sorted(grouped_art.items())),
-            mode=mode,
-            current_sort=None,
-            art_section=ART_SECTION
-        )
-
-    # Photo mode (default)
-    if ART_SECTION:
-        all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
-
-    if sort == "images":
-        all_sets.sort(key=lambda image_set: image_set["image_count"], reverse=True)
-    elif sort == "random":
-        random.shuffle(all_sets)
-    elif sort == "recent":
-        all_sets.sort(key=lambda image_set: image_set["mtime"], reverse=True)
-    else:
-        # Default: folder number descending
-        all_sets.sort(key=lambda image_set: int(image_set["slug"]), reverse=True)
-
-    return render_template(
-        "archive.html",
-        sets=all_sets,
-        grouped_art=None,
-        mode=mode,
-        current_sort=sort,
-        art_section=ART_SECTION
-    )
-
-@app.route("/collections")
-def collections_index():
-    all_collections = load_all_collections()
-    sort = request.args.get("sort")
-
-    if sort == "images":
-        all_collections.sort(key=lambda c: c["image_count"], reverse=True)
-    elif sort == "random":
-        random.shuffle(all_collections)
-    elif sort == "recent":
-        all_collections.sort(key=lambda c: c["mtime"], reverse=True)
-    else:
-        # Default: alphabetical
-        all_collections.sort(key=lambda c: c["title"].lower())
-
-    return render_template(
-        "collections.html",
-        collections=all_collections,
-        current_sort=sort
-    )
-
-@app.route("/collection/<folder>")
-def view_collection(folder):
-    all_collections = load_all_collections()
-    collection = next((c for c in all_collections if c["folder"] == folder), None)
-
-    if not collection:
-        return "Collection not found", 404
-
-    # Build full image data for each referenced image
-    images = []
-    for ref in collection["images"]:
-        set_slug = ref.get("set")
-        image_file = ref.get("image")
-        if set_slug and image_file:
-            basename = image_file.rsplit('.', 1)[0]
-            images.append({
-                "set": set_slug,
-                "image": image_file,
-                "src": f"sets/{set_slug}/{image_file}",
-                "thumb_400": f"sets/{set_slug}/thumbnails/{basename}_thumb_400.jpg",
-                "thumb_150": f"sets/{set_slug}/thumbnails/{basename}_thumb_150.jpg",
-            })
-
-    return render_template(
-        "collection.html",
-        collection=collection,
-        images=images,
-        lightbox_thumbnails=LIGHTBOX_THUMBNAILS
-    )
-
-@app.route("/collection/add-image", methods=["POST"])
-def collection_add_image():
-    data = request.get_json()
-    collection_folder = data.get("collection_folder")
-    set_slug = data.get("set")
-    image = data.get("image")
-
-    if not all([collection_folder, set_slug, image]):
-        return jsonify({"error": "Missing data"}), 400
-
-    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
-
-    if not os.path.exists(json_path):
-        return jsonify({"error": "Collection not found"}), 404
-
-    with open(json_path, "r") as f:
-        col_data = json.load(f)
-
-    already_exists = any(
-        r.get("set") == set_slug and r.get("image") == image
-        for r in col_data.get("images", [])
-    )
-
-    if not already_exists:
-        col_data.setdefault("images", []).append({"set": set_slug, "image": image})
-
-        with open(json_path, "w") as f:
-            json.dump(col_data, f, indent=4)
-
-    return jsonify({"success": True})
-
-@app.route("/collection/remove-image", methods=["POST"])
-def collection_remove_image():
-    data = request.get_json()
-    collection_folder = data.get("collection_folder")
-    set_slug = data.get("set")
-    image = data.get("image")
-
-    if not all([collection_folder, set_slug, image]):
-        return jsonify({"error": "Missing data"}), 400
-
-    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
-
-    if not os.path.exists(json_path):
-        return jsonify({"error": "Collection not found"}), 404
-
-    with open(json_path, "r") as f:
-        col_data = json.load(f)
-
-    col_data["images"] = [
-        r for r in col_data.get("images", [])
-        if not (r.get("set") == set_slug and r.get("image") == image)
-    ]
-
-    # Delete collection entirely if no images remain
-    if not col_data["images"]:
-        folder_path = os.path.join(COLLECTIONS_DIR, collection_folder)
-        os.remove(json_path)
-        os.rmdir(folder_path)
-        return jsonify({"success": True, "deleted": True})
-
-    with open(json_path, "w") as f:
-        json.dump(col_data, f, indent=4)
-
-    return jsonify({"success": True, "deleted": False})
-
-@app.route("/collection/create", methods=["POST"])
-def collection_create():
-    data = request.get_json()
-    title = data.get("title", "").strip()
-    set_slug = data.get("set")
-    image = data.get("image")
-
-    if not title or not set_slug or not image:
-        return jsonify({"error": "Missing data"}), 400
-
-    slug = slugify(title)
-    folder = get_next_collection_folder()
-    folder_path = os.path.join(COLLECTIONS_DIR, folder)
-    os.makedirs(folder_path)
-
-    col_data = {
-        "title": title,
-        "slug": slug,
-        "cover": {"set": set_slug, "image": image},
-        "images": [{"set": set_slug, "image": image}]
-    }
-
-    json_path = os.path.join(folder_path, "collection.json")
-    with open(json_path, "w") as f:
-        json.dump(col_data, f, indent=4)
-
-    return jsonify({"success": True, "folder": folder, "title": title})
 
 def load_all_sets():
     all_sets = []
@@ -399,7 +214,272 @@ def load_all_sets():
 
     return all_sets
 
+# ─── Routes ────────────────────────────────────────────────────────────────
+
+@app.route("/set/<slug>/add-person", methods=["POST"])
+@conditional_login_required
+def add_person(slug):
+    raw_person = request.form.get("new_person", "")
+    new_person = normalize_name(raw_person)
+
+    if not new_person:
+        return redirect(url_for("view_set", slug=slug))
+
+    all_sets = load_all_sets()
+
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            existing_people_lower = [person.lower() for person in image_set["people"]]
+
+            if new_person.lower() not in existing_people_lower:
+                image_set["people"].append(new_person)
+
+                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
+
+                with open(meta_path, "r") as meta_file:
+                    meta = json.load(meta_file)
+
+                meta["people"] = image_set["people"]
+
+                with open(meta_path, "w") as meta_file:
+                    json.dump(meta, meta_file, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
+
+@app.route("/set/<slug>/add-tag", methods=["POST"])
+@conditional_login_required
+def add_tag(slug):
+    raw_tag = request.form.get("new_tag", "")
+    new_tag = normalize_name(raw_tag)
+
+    if not new_tag:
+        return redirect(url_for("view_set", slug=slug))
+
+    all_sets = load_all_sets()
+
+    for image_set in all_sets:
+        if image_set["slug"] == slug:
+            existing_tags_lower = [tag.lower() for tag in image_set["tags"]]
+
+            if new_tag.lower() not in existing_tags_lower:
+                image_set["tags"].append(new_tag)
+
+                meta_path = os.path.join(SETS_DIR, slug, "meta.json")
+
+                with open(meta_path, "r") as meta_file:
+                    meta = json.load(meta_file)
+
+                meta["tags"] = image_set["tags"]
+
+                with open(meta_path, "w") as meta_file:
+                    json.dump(meta, meta_file, indent=4)
+
+            break
+
+    return redirect(url_for("view_set", slug=slug))
+
+@app.route("/")
+@conditional_login_required
+def archive():
+    all_sets = load_all_sets()
+    mode = request.args.get("mode", "photo")
+    sort = request.args.get("sort")
+
+    if not ART_SECTION:
+        mode = "photo"
+
+    if mode == "art":
+        all_sets = [image_set for image_set in all_sets if image_set["type"] == "art"]
+
+        grouped_art = defaultdict(list)
+        for image_set in all_sets:
+            series_name = image_set["series"] or image_set["title"]
+            grouped_art[series_name].append(image_set)
+
+        for series in grouped_art.values():
+            series.sort(key=lambda image_set: image_set["issue"] or 0)
+
+        return render_template(
+            "archive.html",
+            sets=all_sets,
+            grouped_art=dict(sorted(grouped_art.items())),
+            mode=mode,
+            current_sort=None,
+            art_section=ART_SECTION
+        )
+
+    if ART_SECTION:
+        all_sets = [image_set for image_set in all_sets if image_set["type"] == "photo"]
+
+    if sort == "images":
+        all_sets.sort(key=lambda image_set: image_set["image_count"], reverse=True)
+    elif sort == "random":
+        random.shuffle(all_sets)
+    elif sort == "recent":
+        all_sets.sort(key=lambda image_set: image_set["mtime"], reverse=True)
+    else:
+        all_sets.sort(key=lambda image_set: int(image_set["slug"]), reverse=True)
+
+    return render_template(
+        "archive.html",
+        sets=all_sets,
+        grouped_art=None,
+        mode=mode,
+        current_sort=sort,
+        art_section=ART_SECTION
+    )
+
+@app.route("/collections")
+@conditional_login_required
+def collections_index():
+    all_collections = load_all_collections()
+    sort = request.args.get("sort")
+
+    if sort == "images":
+        all_collections.sort(key=lambda c: c["image_count"], reverse=True)
+    elif sort == "recent":
+        all_collections.sort(key=lambda c: c["mtime"], reverse=True)
+    elif sort == "random":
+        random.shuffle(all_collections)
+    else:
+        all_collections.sort(key=lambda c: c["title"].lower())
+
+    return render_template(
+        "collections.html",
+        collections=all_collections,
+        current_sort=sort
+    )
+
+@app.route("/collection/<folder>")
+@conditional_login_required
+def view_collection(folder):
+    all_collections = load_all_collections()
+    collection = next((c for c in all_collections if c["folder"] == folder), None)
+
+    if not collection:
+        return "Collection not found", 404
+
+    images = []
+    for ref in collection["images"]:
+        set_slug = ref.get("set")
+        image_file = ref.get("image")
+        if set_slug and image_file:
+            basename = image_file.rsplit('.', 1)[0]
+            images.append({
+                "set": set_slug,
+                "image": image_file,
+                "src": f"sets/{set_slug}/{image_file}",
+                "thumb_400": f"sets/{set_slug}/thumbnails/{basename}_thumb_400.jpg",
+                "thumb_150": f"sets/{set_slug}/thumbnails/{basename}_thumb_150.jpg",
+            })
+
+    return render_template(
+        "collection.html",
+        collection=collection,
+        images=images,
+        lightbox_thumbnails=LIGHTBOX_THUMBNAILS
+    )
+
+@app.route("/collection/add-image", methods=["POST"])
+@conditional_login_required
+def collection_add_image():
+    data = request.get_json()
+    collection_folder = data.get("collection_folder")
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not all([collection_folder, set_slug, image]):
+        return jsonify({"error": "Missing data"}), 400
+
+    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
+
+    if not os.path.exists(json_path):
+        return jsonify({"error": "Collection not found"}), 404
+
+    with open(json_path, "r") as f:
+        col_data = json.load(f)
+
+    already_exists = any(
+        r.get("set") == set_slug and r.get("image") == image
+        for r in col_data.get("images", [])
+    )
+
+    if not already_exists:
+        col_data.setdefault("images", []).append({"set": set_slug, "image": image})
+
+        with open(json_path, "w") as f:
+            json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True})
+
+@app.route("/collection/remove-image", methods=["POST"])
+@conditional_login_required
+def collection_remove_image():
+    data = request.get_json()
+    collection_folder = data.get("collection_folder")
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not all([collection_folder, set_slug, image]):
+        return jsonify({"error": "Missing data"}), 400
+
+    json_path = os.path.join(COLLECTIONS_DIR, collection_folder, "collection.json")
+
+    if not os.path.exists(json_path):
+        return jsonify({"error": "Collection not found"}), 404
+
+    with open(json_path, "r") as f:
+        col_data = json.load(f)
+
+    col_data["images"] = [
+        r for r in col_data.get("images", [])
+        if not (r.get("set") == set_slug and r.get("image") == image)
+    ]
+
+    if not col_data["images"]:
+        folder_path = os.path.join(COLLECTIONS_DIR, collection_folder)
+        os.remove(json_path)
+        os.rmdir(folder_path)
+        return jsonify({"success": True, "deleted": True})
+
+    with open(json_path, "w") as f:
+        json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True, "deleted": False})
+
+@app.route("/collection/create", methods=["POST"])
+@conditional_login_required
+def collection_create():
+    data = request.get_json()
+    title = data.get("title", "").strip()
+    set_slug = data.get("set")
+    image = data.get("image")
+
+    if not title or not set_slug or not image:
+        return jsonify({"error": "Missing data"}), 400
+
+    slug = slugify(title)
+    folder = get_next_collection_folder()
+    folder_path = os.path.join(COLLECTIONS_DIR, folder)
+    os.makedirs(folder_path)
+
+    col_data = {
+        "title": title,
+        "slug": slug,
+        "cover": {"set": set_slug, "image": image},
+        "images": [{"set": set_slug, "image": image}]
+    }
+
+    json_path = os.path.join(folder_path, "collection.json")
+    with open(json_path, "w") as f:
+        json.dump(col_data, f, indent=4)
+
+    return jsonify({"success": True, "folder": folder, "title": title})
+
 @app.route("/people")
+@conditional_login_required
 def people_index():
     all_sets = load_all_sets()
 
@@ -431,6 +511,7 @@ def people_index():
     )
 
 @app.route("/set/<slug>/remove-person", methods=["POST"])
+@conditional_login_required
 def remove_person(slug):
     person_to_remove = request.form.get("person_to_remove", "")
 
@@ -455,6 +536,7 @@ def remove_person(slug):
     return redirect(url_for("view_set", slug=slug))
 
 @app.route("/set/<slug>/remove-tag", methods=["POST"])
+@conditional_login_required
 def remove_tag(slug):
     tag_to_remove = request.form.get("tag_to_remove", "")
 
@@ -479,6 +561,7 @@ def remove_tag(slug):
     return redirect(url_for("view_set", slug=slug))
 
 @app.route("/tags")
+@conditional_login_required
 def tags_index():
     all_sets = load_all_sets()
 
@@ -510,6 +593,7 @@ def tags_index():
     )
 
 @app.route("/set/<slug>")
+@conditional_login_required
 def view_set(slug):
     all_sets = load_all_sets()
     image_set = next((image_set for image_set in all_sets if image_set["slug"] == slug), None)
@@ -517,7 +601,6 @@ def view_set(slug):
     if not image_set:
         return "Set not found", 404
 
-    # Pass collection folders each image belongs to, for the right-click menu
     all_collections = load_all_collections()
     image_collections = {}
     for collection in all_collections:
@@ -538,6 +621,7 @@ def view_set(slug):
     )
 
 @app.route("/tag/<tag_name>")
+@conditional_login_required
 def view_tag(tag_name):
     all_sets = load_all_sets()
 
@@ -556,6 +640,7 @@ def view_tag(tag_name):
     )
 
 @app.route("/person/<person_name>")
+@conditional_login_required
 def view_person(person_name):
     all_sets = load_all_sets()
 

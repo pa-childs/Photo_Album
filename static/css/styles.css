@@ -618,6 +618,22 @@ hr {
     }
 }
 
+#context-menu-items {
+    max-height: 320px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #6C9D85 transparent;
+}
+
+#context-menu-items::-webkit-scrollbar {
+    width: 4px;
+}
+
+#context-menu-items::-webkit-scrollbar-thumb {
+    background-color: #6C9D85;
+    border-radius: 4px;
+}
+
 /* Collections */
 .collection-no-cover {
     display: flex;
@@ -641,8 +657,6 @@ hr {
     min-width: 200px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     font-size: 0.9rem;
-    overflow-y: auto;
-    max-height: 320px;
 }
 
 .context-menu-title {
@@ -721,9 +735,88 @@ hr {
     font-size: 0.85rem;
 }
 
-.nav-active {
+/* Login page */
+.login-box {
+    max-width: 380px;
+    margin: 60px auto;
+    background: #ffffff;
+    border: 2px solid #344e41;
+    border-radius: 8px;
+    padding: 32px;
+}
+
+.login-box h2 {
+    margin: 0 0 24px 0;
+    color: #344e41;
+    font-size: 1.3rem;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.login-field label {
+    font-size: 0.9rem;
+    color: #344e41;
+    font-weight: bold;
+    padding: 0;
+}
+
+.login-field input {
+    padding: 8px 10px;
+    border: 2px solid #344e41;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #344e41;
+    font-size: 0.95rem;
+}
+
+.login-field input:focus {
+    outline: none;
+    border-color: #6C9D85;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    font-size: 1rem;
+}
+
+.login-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
+/* Logout button in nav */
+.nav-logout {
+    margin-left: auto;
+    padding: 4px 10px;
     background-color: #344e41;
     color: #dad7cd;
+    border: 2px solid #344e41;
     border-radius: 6px;
-    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.nav-logout:hover {
+    background-color: #6C9D85;
+    border-color: #6C9D85;
+    color: #ffffff;
 }

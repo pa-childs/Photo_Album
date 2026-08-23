@@ -16,6 +16,9 @@
         <a href="{{ url_for('collections_index') }}" class="{% if request.endpoint in ['collections_index', 'view_collection'] %}nav-active{% endif %}">Collections</a>
         <a href="{{ url_for('tags_index') }}" class="{% if request.endpoint == 'tags_index' %}nav-active{% endif %}">Tags</a>
         <a href="{{ url_for('people_index') }}" class="{% if request.endpoint == 'people_index' %}nav-active{% endif %}">People</a>
+        {% if require_login %}
+            <a href="{{ url_for('logout') }}" class="nav-logout">Sign Out</a>
+        {% endif %}
     </nav>
 
     <hr>
