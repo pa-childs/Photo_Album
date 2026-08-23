@@ -6,4 +6,6 @@ static/collections/*
 
 .idea/
 
+config.env
 photo_album.bat
+users.json
